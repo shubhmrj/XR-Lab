@@ -67,3 +67,10 @@ crashlytics-build.properties
 Thumbs.db
 Desktop.ini
 *.csproj
+UpgradeLog.htm
+*.plastic
+*.vscode
+.vscode/
+.gitignore
+*.plastic
+*.vscode
