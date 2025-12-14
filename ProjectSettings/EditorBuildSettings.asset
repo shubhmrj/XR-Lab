@@ -26,6 +26,9 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Finaliaze.unity
     guid: b09778c42c195fa4a9bcf052845222d3
+  - enabled: 0
+    path: Assets/scene/FiirebaseAuth.unity
+    guid: 31d56696dfea29545955a7b9513bcf31
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 9614cacb31bc79f47a404c9121fc2de6, type: 2}
     UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: 8c1adfa8ad3b14b358ec7acff9041b0b, type: 2}

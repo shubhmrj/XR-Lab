@@ -1,61 +1,71 @@
 using UnityEngine;
 using ManoMotion;
+using System.Collections.Generic;
 
 public class WaterAttachToBeaker : MonoBehaviour
 {
-    [SerializeField] private GameObject beakerModel;
-    [SerializeField] private Transform pourPoint;
+    [Header("Chemistry Lab Setup")]
+    [SerializeField] private GameObject sourceBeaker; // Fixed beaker (source)
+    [SerializeField] private GameObject targetBeaker; // Movable beaker (target)
     [SerializeField] private GameObject waterParticlesPrefab;
+    [SerializeField] private float grabDetectionRadius = 5.0f; // Increased for bigger beakers
+    
+    [Header("Pour Points - Assign These in Unity Inspector")]
+    [SerializeField] public Transform sourcePourPoint; // ASSIGN THIS in Unity Inspector
+    [SerializeField] public Transform targetPourPoint; // ASSIGN THIS in Unity Inspector
+    
+    [Header("Chemistry Settings")]
+    [SerializeField] private float maxBeakerVolume = 500f; // mL
+    [SerializeField] private float pourRate = 250f; // mL per second (250mL precision)
+    [SerializeField] private float pouringDistance = 2.0f; // Distance for beaker-to-beaker pouring
 
     [Header("Pouring Settings")]
-    [SerializeField] private float pouringThresholdAngle = 25f; // Reduced from 30f for easier pouring
-    [SerializeField] private float maxPourRate = 100.0f; // Increased for more visible water flow
+    [SerializeField] private float pouringThresholdAngle = 25f;
+    [SerializeField] private float maxPourRate = 100.0f;
     [SerializeField] public Color waterColor = new Color(0.7f, 0.85f, 0.92f, 0.7f);
 
-    private float tiltSpeed = 30f;
-    private float rotationSpeed = 50f;
-    [SerializeField] private float maxTiltAngle = 60f; // maximum tilt angle in both directions
-    [SerializeField] private float tiltSmoothSpeed = 15f; // smoothing factor for roll (increased for faster response)
-    [SerializeField] private float moveSpeed = 8f; // Increased for better grab responsiveness
-    [SerializeField] private float grabSmoothness = 0.3f; // Higher = smoother but slower grab movement
-
-    [Header("Orientation Settings")]
+    [Header("Movement Settings")]
+    [SerializeField] private float moveSpeed = 12f; // Increased for better responsiveness
+    [SerializeField] private float tiltSmoothSpeed = 20f; // Faster tilt response
+    [SerializeField] private float maxTiltAngle = 60f;
+    [SerializeField] private Vector3 handPositionOffset = new Vector3(0, 0f, 8f);
+    [SerializeField] private float coordinateScale = 4f;
     [SerializeField] private bool isLandscapeMode = true;
-    [SerializeField] private float coordinateScale = 3f; // Scale factor for hand coordinates (adjusted for better control)
-    [SerializeField] private Vector3 handPositionOffset = new Vector3(0, 0f, 10f); // Offset for hand position
-    [SerializeField] private bool useDirectPositioning = false; // Use camera-relative positioning instead
-    [SerializeField] private float grabMovementMultiplier = 1.5f; // Multiplier for grab movement distance
 
-    // Keep track of liquid amount
-    [SerializeField] [Range(0f, 1f)] public float liquidAmount = 1.0f;
+    [Header("Control Mode")]
+    [SerializeField] private bool useGestureControls = true; // Allow disabling ManoMotion gating for XR/controller input
+    [SerializeField] private bool autoReturnWhenNoGesture = true; // Optional upright snap when gestures disappear
 
-    // Water effect references
-    private GameObject waterEffectObj;
-    private ParticleSystem waterEffect;
-    private ParticleSystem splashEffect;
+    // Chemistry beaker data structure
+    private class ChemistryBeaker
+    {
+        public GameObject beakerObject;
+        public Transform pourPoint;
+        public GameObject waterEffectObj;
+        public ParticleSystem waterEffect;
+        public ParticleSystem splashEffect;
+        public float volumeML = 500f;
+        public Vector3 initialPosition;
+        public Quaternion initialRotation;
+        public Vector3 lastEmitPosition;
+        public bool isGrabbed = false;
+        public bool isFixed = false;
+        public Color liquidColor;
+        public string chemicalName = "Water";
+        public float concentration = 100f;
+    }
 
-    // Track last emitter position to clear stray particles when beaker moves
-    private Vector3 lastEmitPosition;
-
-    // Store original beaker scale to prevent scaling issues
-    private Vector3 FIXED_BEAKER_SCALE = new Vector3(5f, 5f, 5f); // FIXED scale for proper size
-    private Vector3 originalBeakerScale;
-    private Vector3 initialBeakerPosition; // Store initial position for reset
-    private Quaternion initialBeakerRotation; // Store initial rotation
-
-    // Debug visualization
-    [SerializeField] private bool showDebugVisuals = true;
-    private GameObject debugSphere;
-
+    private ChemistryBeaker sourceBeakerData = null;
+    private ChemistryBeaker targetBeakerData = null;
+    private ChemistryBeaker currentlyGrabbedBeaker = null;
+    private bool isPouringBetweenBeakers = false;
+    private Vector3 FIXED_BEAKER_SCALE = new Vector3(8f, 8f, 8f); // INCREASED SIZE for better visibility
+    
     // Current gesture tracking
     private ManoGestureContinuous currentGesture = ManoGestureContinuous.NO_GESTURE;
-    private string beakerStatus = "Ready";
-
-    // Safety bounds
-    [Header("Safety Settings")]
-    [SerializeField] private bool enableSafetyBounds = true;
-    [SerializeField] private Vector3 minBounds = new Vector3(-5f, -3f, 5f);
-    [SerializeField] private Vector3 maxBounds = new Vector3(5f, 5f, 15f);
+    private string systemStatus = "Chemistry Lab Ready";
+    
+    [SerializeField] private bool showDebugVisuals = true;
 
     void Start()
     {
@@ -63,1090 +73,932 @@ public class WaterAttachToBeaker : MonoBehaviour
         {
             ManoMotionManager.Instance.ShouldCalculateGestures(true);
         }
+        InitializeBeakers();
+        Debug.Log("Chemistry Lab initialized with Source and Target beakers");
+    }
 
-        // CRITICAL: Set beaker to FIXED scale (5, 5, 5) for proper visibility
-        beakerModel.transform.localScale = FIXED_BEAKER_SCALE;
-        originalBeakerScale = FIXED_BEAKER_SCALE;
-        initialBeakerPosition = beakerModel.transform.position;
-        initialBeakerRotation = beakerModel.transform.rotation;
-
-        Debug.Log($"WaterAttachToBeaker initialized. Beaker set to FIXED scale {FIXED_BEAKER_SCALE}. Position: {initialBeakerPosition}");
-
-        // Create pour point if not assigned
-        if (pourPoint == null)
+    void InitializeBeakers()
+    {
+        // Initialize Source Beaker (Fixed)
+        if (sourceBeaker != null)
         {
-            GameObject pourPointObj = new GameObject("PourPoint");
-            pourPointObj.transform.parent = beakerModel.transform;
-
-            // Adjust based on your beaker model dimensions - position at the lip/edge
-            // These values need to be adjusted for your specific beaker model
-            pourPointObj.transform.localPosition = new Vector3(0, 0.45f, 0.25f);
-            pourPoint = pourPointObj.transform;
+            sourceBeakerData = CreateChemistryBeaker(sourceBeaker, true);
+            sourceBeakerData.chemicalName = "Hydrochloric Acid";
+            sourceBeakerData.liquidColor = new Color(0.9f, 0.9f, 0.3f, 0.8f);
+            sourceBeakerData.concentration = 100f;
+            sourceBeakerData.volumeML = maxBeakerVolume;
         }
 
-        // Create debug visuals if needed
-        if (showDebugVisuals)
+        // Initialize Target Beaker (Movable)
+        if (targetBeaker != null)
         {
-            debugSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            debugSphere.transform.localScale = Vector3.one * 0.05f;
-            debugSphere.GetComponent<Renderer>().material.color = Color.red;
-            Destroy(debugSphere.GetComponent<Collider>());
+            targetBeakerData = CreateChemistryBeaker(targetBeaker, false);
+            targetBeakerData.chemicalName = "Empty";
+            targetBeakerData.liquidColor = new Color(0.7f, 0.85f, 0.92f, 0.7f);
+            targetBeakerData.concentration = 0f;
+            targetBeakerData.volumeML = 0f;
         }
+    }
 
-        // Instantiate the water particles prefab
-        if (waterParticlesPrefab != null)
+    ChemistryBeaker CreateChemistryBeaker(GameObject beakerObj, bool isFixed)
+    {
+        ChemistryBeaker data = new ChemistryBeaker
         {
-            // Instantiate the water particle effect at the pour-point position but DO NOT
-            // parent it. We will manually reposition it each frame. This prevents
-            // previously emitted particles from being dragged around when the beaker
-            // moves/rotates.
-            waterEffectObj = Instantiate(waterParticlesPrefab, pourPoint.position, Quaternion.identity);
-            waterEffectObj.transform.parent = null;
+            beakerObject = beakerObj,
+            initialPosition = beakerObj.transform.position,
+            initialRotation = beakerObj.transform.rotation,
+            isFixed = isFixed,
+            liquidColor = waterColor
+        };
 
-            // Get references to particle systems
-            waterEffect = waterEffectObj.GetComponent<ParticleSystem>();
-            if (waterEffect == null)
-            {
-                Debug.LogError("Particle system component not found on water particles prefab!");
-            }
-            else
-            {
-                // Use LOCAL simulation for better control and immediate alignment
-                var main = waterEffect.main;
-                main.simulationSpace = ParticleSystemSimulationSpace.Local;
+        beakerObj.transform.localScale = FIXED_BEAKER_SCALE;
 
-                // Set the water color
-                main.startColor = waterColor;
-            }
-
-            // Find splash particles if they exist
-            Transform splashTransform = waterEffectObj.transform.Find("WaterSplash");
-            if (splashTransform != null)
-            {
-                splashEffect = splashTransform.GetComponent<ParticleSystem>();
-                if (splashEffect != null)
-                {
-                    var splashMain = splashEffect.main;
-                    splashMain.simulationSpace = ParticleSystemSimulationSpace.Local;
-                    splashMain.startColor = waterColor;
-                }
-            }
-
-            // Stop the particle systems initially
-            if (waterEffect != null) {
-                waterEffect.Stop();
-                lastEmitPosition = pourPoint.position; // initialise
-            }
-            if (splashEffect != null) splashEffect.Stop();
+        // Use assigned pour points from Inspector
+        if (beakerObj == sourceBeaker && sourcePourPoint != null)
+        {
+            data.pourPoint = sourcePourPoint;
+            Debug.Log("Using assigned SOURCE pour point from Inspector");
+        }
+        else if (beakerObj == targetBeaker && targetPourPoint != null)
+        {
+            data.pourPoint = targetPourPoint;
+            Debug.Log("Using assigned TARGET pour point from Inspector");
         }
         else
         {
-            Debug.LogError("Water particles prefab not assigned!");
+            // Fallback: Create pour point if not assigned
+            GameObject pourPointObj = new GameObject($"PourPoint_{beakerObj.name}");
+            pourPointObj.transform.parent = beakerObj.transform;
+            pourPointObj.transform.localPosition = new Vector3(0, 0.45f, 0.25f);
+            data.pourPoint = pourPointObj.transform;
+            Debug.LogWarning($"Pour point not assigned in Inspector for {beakerObj.name}! Using auto-created pour point.");
         }
+
+        // Create water particles
+        if (waterParticlesPrefab != null)
+        {
+            data.waterEffectObj = Instantiate(waterParticlesPrefab, data.pourPoint.position, Quaternion.identity);
+            data.waterEffectObj.name = $"ChemicalEffect_{beakerObj.name}";
+            data.waterEffect = data.waterEffectObj.GetComponent<ParticleSystem>();
+            if (data.waterEffect != null)
+            {
+                var main = data.waterEffect.main;
+                main.startColor = data.liquidColor;
+                data.waterEffect.Stop();
+            }
+        }
+        return data;
     }
 
     void Update()
     {
-        if (ManoMotionManager.Instance == null || ManoMotionManager.Instance.HandInfos == null)
-            return;
+        // Enforce scale lock
+        EnforceScaleLock();
 
-        HandInfo[] handInfos = ManoMotionManager.Instance.HandInfos;
-
-        foreach (var handInfo in handInfos)
+        // Gesture path (can be disabled for XR/controller use)
+        if (useGestureControls && ManoMotionManager.Instance != null && ManoMotionManager.Instance.HandInfos != null)
         {
-            if (handInfo.gestureInfo.manoClass == ManoClass.NO_HAND)
-                continue;
+            HandInfo[] handInfos = ManoMotionManager.Instance.HandInfos;
 
-            // Calculate hand position with orientation correction
-            Vector3 handPosition = CalculateHandPosition(handInfo.trackingInfo.boundingBox);
-
-            ManoGestureContinuous gesture = handInfo.gestureInfo.manoGestureContinuous;
-            currentGesture = gesture; // Track current gesture for UI display
-
-            // Approximate palm center using the center of the bounding box
-            BoundingBox boundingBox = handInfo.trackingInfo.boundingBox;
-
-            float centerX = boundingBox.topLeft.x + boundingBox.width / 2f;
-            float centerY = boundingBox.topLeft.y - boundingBox.height / 2f;
-
-            // Normalize coordinates with orientation correction
-            float normalizedX, normalizedY;
-            if (isLandscapeMode)
+            foreach (var handInfo in handInfos)
             {
-                // In landscape left: for tilt, we want horizontal hand movement
-                // Hand moving left/right on screen should tilt beaker
-                normalizedX = (centerX - 0.5f); // Keep X for horizontal tilt
-                normalizedY = (centerY - 0.5f); // Use Y for vertical reference
+                if (handInfo.gestureInfo.manoClass == ManoClass.NO_HAND)
+                    continue;
+
+                Vector3 handPosition = CalculateHandPosition(handInfo.trackingInfo.boundingBox);
+                ManoGestureContinuous gesture = handInfo.gestureInfo.manoGestureContinuous;
+                currentGesture = gesture;
+
+                BoundingBox boundingBox = handInfo.trackingInfo.boundingBox;
+                float centerX = boundingBox.topLeft.x + boundingBox.width / 2f;
+                float centerY = boundingBox.topLeft.y - boundingBox.height / 2f;
+                float normalizedX = (centerX - 0.5f);
+
+                switch (gesture)
+                {
+                    case ManoGestureContinuous.OPEN_HAND_GESTURE:
+                        HandleTiltGesture(normalizedX);
+                        break;
+                    case ManoGestureContinuous.OPEN_PINCH_GESTURE:
+                        HandleRefillGesture();
+                        break;
+                    case ManoGestureContinuous.CLOSED_HAND_GESTURE:
+                        HandleGrabGesture(handPosition);
+                        break;
+                    default:
+                        ReleaseAllBeakers();
+                        if (autoReturnWhenNoGesture)
+                        {
+                            ReturnBeakersToInitialPosition();
+                        }
+                        break;
+                }
+            }
+
+            // If no hand detected, also return beakers to initial position
+            if (handInfos.Length == 0 || currentGesture == ManoGestureContinuous.NO_GESTURE)
+            {
+                if (autoReturnWhenNoGesture)
+                {
+                    ReturnBeakersToInitialPosition();
+                }
+                systemStatus = "Chemistry Lab Ready";
+            }
+        }
+
+        EnforceScaleLock();
+        UpdateWaterPouring(); // Always keep pouring logic alive, even without gestures
+    }
+
+    void EnforceScaleLock()
+    {
+        if (sourceBeakerData?.beakerObject != null)
+        {
+            sourceBeakerData.beakerObject.transform.localScale = FIXED_BEAKER_SCALE;
+            // CRITICAL: LOCK SOURCE BEAKER POSITION - it should never move from initial position
+            sourceBeakerData.beakerObject.transform.position = sourceBeakerData.initialPosition;
+            
+            // Debug info to track source beaker behavior
+            if (showDebugVisuals && Vector3.Distance(sourceBeakerData.beakerObject.transform.position, sourceBeakerData.initialPosition) > 0.01f)
+            {
+                Debug.LogError($"SOURCE BEAKER MOVED! Resetting to {sourceBeakerData.initialPosition}");
+            }
+        }
+        if (targetBeakerData?.beakerObject != null)
+        {
+            targetBeakerData.beakerObject.transform.localScale = FIXED_BEAKER_SCALE;
+        }
+    }
+
+    ChemistryBeaker GetNearestGrabbableBeaker(Vector3 handPosition)
+    {
+        // ONLY TARGET BEAKER CAN BE GRABBED - SOURCE IS ALWAYS FIXED
+        if (targetBeakerData?.beakerObject != null && !targetBeakerData.isFixed)
+        {
+            float distance = Vector3.Distance(targetBeakerData.beakerObject.transform.position, handPosition);
+            if (distance <= grabDetectionRadius)
+            {
+                Debug.Log($"GRAB SUCCESS: Target beaker is available and movable!");
+                return targetBeakerData;
             }
             else
             {
-                // Portrait mode (original)
-                normalizedX = centerX - 0.5f;
-                normalizedY = 0.5f - centerY;
-            }
-
-            switch (gesture)
-            {
-                case ManoGestureContinuous.OPEN_HAND_GESTURE:
-                    // ABSOLUTE SCALE LOCK - BEFORE any operation
-                    beakerModel.transform.localScale = FIXED_BEAKER_SCALE;
-
-                    beakerStatus = "Tilting";
-
-                    // Map hand horizontal position to tilt angle (both left and right)
-                    // normalizedX ranges from -0.5 (left) to +0.5 (right)
-                    // We multiply by 2 to get full range: -1 to +1
-                    float tiltInput = normalizedX * 2f; // Range: -1 to +1
-
-                    // Scale to maxTiltAngle and allow both directions
-                    float desiredTiltZ = Mathf.Clamp(tiltInput * maxTiltAngle, -maxTiltAngle, maxTiltAngle);
-
-                    // Get current roll angle (normalize to -180 to 180 range)
-                    float currentTiltZ = beakerModel.transform.eulerAngles.z;
-                    if (currentTiltZ > 180f) currentTiltZ -= 360f;
-
-                    float angleDiff = desiredTiltZ - currentTiltZ;
-
-                    // Apply rotation if difference is significant
-                    if (Mathf.Abs(angleDiff) > 0.5f)
-                    {
-                        // Store scale before rotation
-                        Vector3 scaleBeforeRotate = FIXED_BEAKER_SCALE;
-                        
-                        // Smooth rotation with proportional speed
-                        float rotateAmount = angleDiff * Time.deltaTime * tiltSmoothSpeed;
-                        beakerModel.transform.RotateAround(pourPoint.position, Vector3.forward, rotateAmount);
-                        
-                        // IMMEDIATE scale restoration after RotateAround (this is critical!)
-                        beakerModel.transform.localScale = FIXED_BEAKER_SCALE;
-                    }
-
-                    // ABSOLUTE SCALE LOCK - AFTER rotation
-                    beakerModel.transform.localScale = FIXED_BEAKER_SCALE;
-                    
-                    // DOUBLE LOCK for RotateAround operations
-                    beakerModel.transform.localScale = FIXED_BEAKER_SCALE;
-
-                    // Debug logging
-                    if (showDebugVisuals)
-                    {
-                        Debug.Log($"OPEN_HAND: normalizedX={normalizedX:F3}, tiltInput={tiltInput:F3}, desiredTilt={desiredTiltZ:F1}°, currentTilt={currentTiltZ:F1}°, diff={angleDiff:F1}°");
-                    }
-                    break;
-
-                case ManoGestureContinuous.OPEN_PINCH_GESTURE:
-                    // ABSOLUTE SCALE LOCK - BEFORE any operation
-                    beakerModel.transform.localScale = FIXED_BEAKER_SCALE;
-
-                    beakerStatus = "Refilling";
-
-                    // Reset rotation to upright
-                    beakerModel.transform.rotation = Quaternion.Lerp(beakerModel.transform.rotation, Quaternion.identity, Time.deltaTime * 3f);
-
-                    // Refill the beaker
-                    if (liquidAmount < 1.0f)
-                    {
-                        liquidAmount = Mathf.Min(1.0f, liquidAmount + Time.deltaTime * 2f); // Refill over 0.5 seconds
-                    }
-
-                    // ABSOLUTE SCALE LOCK - AFTER refill
-                    beakerModel.transform.localScale = FIXED_BEAKER_SCALE;
-
-                    if (showDebugVisuals)
-                    {
-                        Debug.Log($"PINCH: Refilling beaker - Liquid: {liquidAmount:P0}");
-                    }
-                    break;
-
-                case ManoGestureContinuous.CLOSED_HAND_GESTURE:
-                    // ABSOLUTE SCALE LOCK - BEFORE any operation
-                    beakerModel.transform.localScale = FIXED_BEAKER_SCALE;
-
-                    beakerStatus = "Grabbed - Moving";
-
-                    // Store current scale before any operations
-                    Vector3 scaleBeforeOps = beakerModel.transform.localScale;
-
-                    // Keep beaker upright while grabbing
-                    Quaternion targetRotation = Quaternion.identity;
-                    beakerModel.transform.rotation = Quaternion.Lerp(beakerModel.transform.rotation, targetRotation, Time.deltaTime * 3f);
-                    
-                    // IMMEDIATE scale restoration after rotation
-                    beakerModel.transform.localScale = FIXED_BEAKER_SCALE;
-
-                    // Calculate target position based on hand movement
-                    Vector3 targetPosition = CalculateBeakerPosition(handPosition);
-
-                    // Clamp position to keep beaker visible (if safety bounds enabled)
-                    if (enableSafetyBounds)
-                    {
-                        targetPosition.x = Mathf.Clamp(targetPosition.x, minBounds.x, maxBounds.x);
-                        targetPosition.y = Mathf.Clamp(targetPosition.y, minBounds.y, maxBounds.y);
-                        targetPosition.z = Mathf.Clamp(targetPosition.z, minBounds.z, maxBounds.z);
-                    }
-
-                    // Store position before lerp
-                    Vector3 currentPos = beakerModel.transform.position;
-                    
-                    // Smooth movement with configurable speed
-                    beakerModel.transform.position = Vector3.Lerp(
-                        currentPos,
-                        targetPosition,
-                        grabSmoothness
-                    );
-
-                    // IMMEDIATE scale restoration after position change
-                    beakerModel.transform.localScale = FIXED_BEAKER_SCALE;
-
-                    // QUADRUPLE LOCK - Force multiple times to override any Unity transform caching
-                    beakerModel.transform.localScale = FIXED_BEAKER_SCALE;
-                    beakerModel.transform.localScale = FIXED_BEAKER_SCALE;
-
-                    if (showDebugVisuals)
-                    {
-                        Vector3 currentScale = beakerModel.transform.localScale;
-                        bool scaleChanged = Vector3.Distance(currentScale, FIXED_BEAKER_SCALE) > 0.001f;
-                        if (scaleChanged)
-                        {
-                            Debug.LogWarning($"SCALE DRIFT DETECTED! Current: {currentScale}, Expected: {FIXED_BEAKER_SCALE}");
-                        }
-                        Debug.Log($"GRAB: Hand={handPosition}, Target={targetPosition}, Current={beakerModel.transform.position}, Scale={currentScale}");
-                    }
-                    break;
+                Debug.Log($"GRAB FAILED: Hand too far from target beaker (distance {distance:F2})");
             }
         }
-
-        // CRITICAL: ABSOLUTE SCALE ENFORCEMENT every frame
-        // This prevents ANY scaling issues from Unity's transform system
-        beakerModel.transform.localScale = FIXED_BEAKER_SCALE;
+        else
+        {
+            Debug.Log("GRAB FAILED: No target beaker available or target beaker is fixed");
+        }
         
-        // EMERGENCY SCALE CHECK - Detect and log any scale drift
-        if (Vector3.Distance(beakerModel.transform.localScale, FIXED_BEAKER_SCALE) > 0.001f)
-        {
-            Debug.LogError($"CRITICAL SCALE DRIFT! Forcing correction. Current: {beakerModel.transform.localScale}, Target: {FIXED_BEAKER_SCALE}");
-            beakerModel.transform.localScale = FIXED_BEAKER_SCALE;
-        }
-
-        // Update status when no gesture detected
-        if (currentGesture == ManoGestureContinuous.NO_GESTURE)
-        {
-            beakerStatus = "Ready";
-        }
-
-        // Update debug visuals
-        if (showDebugVisuals && debugSphere != null && pourPoint != null)
-        {
-            debugSphere.transform.position = pourPoint.position;
-        }
-
-        // Check if beaker is tilted enough for water to pour
-        UpdateWaterPouring();
+        // NEVER return source beaker - it should always be fixed
+        return null;
     }
 
-    // LateUpdate runs AFTER all Update functions - ABSOLUTE FINAL scale enforcement
-    void LateUpdate()
+    void HandleGrabGesture(Vector3 handPosition)
     {
-        // ABSOLUTE FINAL scale enforcement after ALL Unity operations
-        if (beakerModel != null)
+        EnforceScaleLock(); // Ensure scale is maintained
+        
+        if (currentlyGrabbedBeaker == null)
         {
-            // Check if scale has drifted
-            Vector3 currentScale = beakerModel.transform.localScale;
-            if (Vector3.Distance(currentScale, FIXED_BEAKER_SCALE) > 0.001f)
+            currentlyGrabbedBeaker = GetNearestGrabbableBeaker(handPosition);
+            if (currentlyGrabbedBeaker != null)
             {
-                Debug.LogWarning($"LateUpdate: Scale correction needed. Was: {currentScale}, Setting to: {FIXED_BEAKER_SCALE}");
+                currentlyGrabbedBeaker.isGrabbed = true;
+                systemStatus = $"Grabbed: {currentlyGrabbedBeaker.beakerObject.name}";
+                Debug.Log($"GRAB SUCCESS: {currentlyGrabbedBeaker.beakerObject.name}");
+            }
+            else
+            {
+                systemStatus = "No movable target beaker available to grab";
+                Debug.Log($"GRAB FAILED: No movable target beaker found (target missing or fixed)");
+            }
+        }
+
+        // Move the grabbed beaker (only target beaker can be moved)
+        if (currentlyGrabbedBeaker != null && !currentlyGrabbedBeaker.isFixed)
+        {
+            // Follow hand in X/Y, keep current Z so depth (apparent size) stays stable
+            Vector3 targetPosition = new Vector3(
+                handPosition.x,
+                handPosition.y,
+                currentlyGrabbedBeaker.beakerObject.transform.position.z
+            );
+            
+            // Apply safety bounds if enabled
+            if (enableSafetyBounds)
+            {
+                targetPosition.x = Mathf.Clamp(targetPosition.x, minBounds.x, maxBounds.x);
+                targetPosition.y = Mathf.Clamp(targetPosition.y, minBounds.y, maxBounds.y);
+                targetPosition.z = Mathf.Clamp(targetPosition.z, minBounds.z, maxBounds.z);
             }
             
-            // Force scale multiple times to override any late Unity operations
-            beakerModel.transform.localScale = FIXED_BEAKER_SCALE;
-            beakerModel.transform.localScale = FIXED_BEAKER_SCALE;
+            // DIRECT: Set position directly for immediate response (no lerp delay)
+            currentlyGrabbedBeaker.beakerObject.transform.position = targetPosition;
+            
+            // Keep beaker upright while grabbing
+            currentlyGrabbedBeaker.beakerObject.transform.rotation = Quaternion.Lerp(
+                currentlyGrabbedBeaker.beakerObject.transform.rotation,
+                currentlyGrabbedBeaker.initialRotation,
+                Time.deltaTime * 5f
+            );
+            
+            // Force scale after movement
+            currentlyGrabbedBeaker.beakerObject.transform.localScale = FIXED_BEAKER_SCALE;
+            
+            CheckBeakerToBeakerPouring();
+            
+            Debug.Log($"MOVING BEAKER: {currentlyGrabbedBeaker.beakerObject.name} to {targetPosition}");
+        }
+        
+        EnforceScaleLock(); // Ensure scale is maintained after movement
+    }
+
+    void HandleTiltGesture(float normalizedX)
+    {
+        // PRIORITY: Source beaker can always be tilted (it's the main beaker for pouring)
+        ChemistryBeaker beakerToTilt = sourceBeakerData;
+        
+        // Only use target beaker if it's currently grabbed and source is not available
+        if (sourceBeakerData == null && currentlyGrabbedBeaker != null && !currentlyGrabbedBeaker.isFixed)
+        {
+            beakerToTilt = currentlyGrabbedBeaker;
+        }
+
+        if (beakerToTilt != null)
+        {
+            systemStatus = $"Tilting: {beakerToTilt.beakerObject.name} - Volume: {beakerToTilt.volumeML:F0}mL";
+            
+            // Enhanced tilt input with better control
+            float tiltInput = normalizedX * 1.5f; // Reduced multiplier for better control
+            float desiredTiltZ = Mathf.Clamp(tiltInput * maxTiltAngle, -maxTiltAngle, maxTiltAngle);
+            
+            float currentTiltZ = beakerToTilt.beakerObject.transform.eulerAngles.z;
+            if (currentTiltZ > 180f) currentTiltZ -= 360f;
+            
+            float angleDiff = desiredTiltZ - currentTiltZ;
+            if (Mathf.Abs(angleDiff) > 0.1f) // More sensitive response
+            {
+                float rotateAmount = angleDiff * Time.deltaTime * tiltSmoothSpeed;
+                
+                // Use pour point if available, otherwise use beaker center
+                Vector3 rotationPoint = beakerToTilt.pourPoint != null ? 
+                    beakerToTilt.pourPoint.position : 
+                    beakerToTilt.beakerObject.transform.position;
+                    
+                beakerToTilt.beakerObject.transform.RotateAround(
+                    rotationPoint,
+                    Vector3.forward,
+                    rotateAmount
+                );
+                
+                Debug.Log($"TILT: {beakerToTilt.beakerObject.name} angle: {currentTiltZ:F1}° → {desiredTiltZ:F1}°");
+            }
+            
+            // Maintain position lock for source beaker (don't let it move)
+            if (beakerToTilt == sourceBeakerData)
+            {
+                beakerToTilt.beakerObject.transform.position = beakerToTilt.initialPosition;
+            }
+            
+            // Force scale after rotation
+            beakerToTilt.beakerObject.transform.localScale = FIXED_BEAKER_SCALE;
+        }
+        else
+        {
+            systemStatus = "No beaker available for tilting";
+        }
+    }
+    
+    void ReturnBeakersToInitialPosition()
+    {
+        // FAST return to upright position for source beaker
+        if (sourceBeakerData != null)
+        {
+            // Faster rotation return with better smoothing
+            sourceBeakerData.beakerObject.transform.rotation = Quaternion.Lerp(
+                sourceBeakerData.beakerObject.transform.rotation,
+                sourceBeakerData.initialRotation,
+                Time.deltaTime * 8f // Much faster return
+            );
+            // Lock position - source beaker should never move
+            sourceBeakerData.beakerObject.transform.position = sourceBeakerData.initialPosition;
+            sourceBeakerData.beakerObject.transform.localScale = FIXED_BEAKER_SCALE;
+            
+            // Check if we're close to upright position
+            float currentAngle = Mathf.Abs(sourceBeakerData.beakerObject.transform.eulerAngles.z);
+            if (currentAngle > 180f) currentAngle = 360f - currentAngle;
+            
+            if (currentAngle < 2f) // Close to upright
+            {
+                // Snap to exact upright position
+                sourceBeakerData.beakerObject.transform.rotation = sourceBeakerData.initialRotation;
+                Debug.Log("SOURCE BEAKER: Returned to upright position");
+            }
+        }
+        
+        // Return target beaker to upright position (but keep its current position)
+        if (targetBeakerData != null)
+        {
+            targetBeakerData.beakerObject.transform.rotation = Quaternion.Lerp(
+                targetBeakerData.beakerObject.transform.rotation,
+                targetBeakerData.initialRotation,
+                Time.deltaTime * 8f // Much faster return
+            );
+            targetBeakerData.beakerObject.transform.localScale = FIXED_BEAKER_SCALE;
         }
     }
 
-    void UpdateWaterPouring()
+    void HandleRefillGesture()
     {
-        if (waterEffect == null || liquidAmount <= 0)
+        // Pinch should ONLY refill the source beaker (main working beaker) - NO DISTANCE CHECK
+        if (sourceBeakerData == null)
         {
-            // No water effect or no liquid left
-            if (waterEffect != null && waterEffect.isPlaying)
-                waterEffect.Stop();
+            Debug.Log($"REFILL FAILED: Source beaker not available");
+            systemStatus = "Source beaker not available for refilling";
             return;
         }
 
-        // Calculate the up vector of the beaker in world space
-        Vector3 beakerUp = beakerModel.transform.up;
+        ChemistryBeaker beakerToRefill = sourceBeakerData;
+        string beakerName = "Source";
 
-        // Angle between beaker's up vector and world up vector
-        float tiltAngle = Vector3.Angle(beakerUp, Vector3.up);
-
-        // Debug: Always log tilt angle to see if beaker is tilting
-        if (showDebugVisuals)
+        float currentVolume = beakerToRefill.volumeML;
+        float refillAmount = pourRate * Time.deltaTime * 2f; // Faster refill: 500mL per second
+        beakerToRefill.volumeML = Mathf.Min(maxBeakerVolume, beakerToRefill.volumeML + refillAmount);
+        
+        if (beakerToRefill.volumeML > 0)
         {
-            Debug.Log($"Beaker Tilt Angle: {tiltAngle:F1}° (Threshold: {pouringThresholdAngle}°) - Liquid: {liquidAmount:F2}");
+            beakerToRefill.chemicalName = "Hydrochloric Acid";
+            beakerToRefill.liquidColor = new Color(1f, 0.7f, 0.2f, 0.7f); // Orange for acid
         }
-
-        // Direction of tilt (to determine where water should pour from)
-        Vector3 tiltDirection = Vector3.zero;
-        if (tiltAngle > 1f) // Avoid normalizing zero vector
-        {
-            tiltDirection = Vector3.ProjectOnPlane(beakerUp, Vector3.up).normalized;
-        }
-        else
-        {
-            tiltDirection = Vector3.forward; // Default direction if not tilted
-        }
-
-        if (tiltAngle > pouringThresholdAngle && liquidAmount > 0)
-        {
-            // Parent water effect to pour point for immediate alignment
-            if (waterEffectObj.transform.parent != pourPoint)
-            {
-                waterEffectObj.transform.SetParent(pourPoint);
-                waterEffectObj.transform.localPosition = Vector3.zero;
-                waterEffectObj.transform.localRotation = Quaternion.identity;
-            }
-
-            // Clear existing particles only if we just started pouring
-            if (!waterEffect.isPlaying)
-            {
-                waterEffect.Clear(true);
-            }
-
-            lastEmitPosition = pourPoint.position;
-
-            // Calculate pour rate based on tilt angle
-            float pourRate = Mathf.Clamp01((tiltAngle - pouringThresholdAngle) / (90f - pouringThresholdAngle));
-
-            // Reduce liquid amount based on tilt
-            liquidAmount -= pourRate * Time.deltaTime * 0.1f;
-            liquidAmount = Mathf.Max(0, liquidAmount);
-
-            // Orient particles downward with slight tilt direction influence
-            Vector3 pourDirection = Vector3.down + tiltDirection * 0.3f;
-            waterEffectObj.transform.rotation = Quaternion.LookRotation(pourDirection.normalized, Vector3.up);
-
-            // Log positions for debugging
-            if (showDebugVisuals)
-            {
-                Debug.Log($"POURING! Beaker: {beakerModel.transform.position}, Pour Point: {pourPoint.position}, Water: {waterEffectObj.transform.position}");
-            }
-
-            // Adjust emission rate based on tilt and liquid amount
-            var emission = waterEffect.emission;
-            emission.rateOverTimeMultiplier = pourRate * maxPourRate * liquidAmount;
-
-            if (!waterEffect.isPlaying)
-            {
-                // Clear to remove any stray particles first so emission starts exactly from current position.
-                waterEffect.Clear(true);
-                waterEffect.Play();
-            }
-
-            // Handle splash effects
-            if (splashEffect != null)
-            {
-                // Raycast to find where water would hit
-                RaycastHit hit;
-                if (Physics.Raycast(pourPoint.position, Vector3.down, out hit, 10f))
-                {
-                    splashEffect.transform.position = hit.point;
-                    splashEffect.transform.up = hit.normal;
-
-                    if (!splashEffect.isPlaying)
-                        {
-                            splashEffect.Clear(true);
-                            splashEffect.Play();
-                        }
-                }
-                else if (splashEffect.isPlaying)
-                {
-                    splashEffect.Stop();
-                }
-            }
-        }
-        else
-        {
-            // Not tilted enough to pour - detach water effect from pour point
-            if (waterEffectObj.transform.parent == pourPoint)
-            {
-                waterEffectObj.transform.SetParent(null);
-            }
-
-            // Stop water effects
-            if (waterEffect.isPlaying)
-                waterEffect.Stop();
-
-            if (splashEffect != null && splashEffect.isPlaying)
-                splashEffect.Stop();
-        }
+        
+        systemStatus = $"Refilling {beakerName}: {beakerToRefill.volumeML:F0}mL / {maxBeakerVolume:F0}mL";
+        Debug.Log($"REFILL SUCCESS: {beakerName} beaker now has {beakerToRefill.volumeML:F0}mL (was {currentVolume:F0}mL)");
     }
 
-    // Calculate hand position with orientation correction
-    Vector3 CalculateHandPosition(BoundingBox boundingBox)
+    void ReleaseAllBeakers()
     {
-        float centerX = boundingBox.topLeft.x + boundingBox.width / 2f;
-        float centerY = boundingBox.topLeft.y - boundingBox.height / 2f;
-
-        Vector3 handPos;
-
-        if (isLandscapeMode)
+        if (currentlyGrabbedBeaker != null)
         {
-            // Landscape left orientation correction for GRAB movement
-            // Swap X/Y for proper world space mapping during grab
-            float normalizedX = (centerY - 0.5f) * coordinateScale * grabMovementMultiplier;
-            float normalizedY = (0.5f - centerX) * coordinateScale * grabMovementMultiplier;
-
-            handPos = new Vector3(normalizedX, normalizedY, 0) + handPositionOffset;
+            currentlyGrabbedBeaker.isGrabbed = false;
+            currentlyGrabbedBeaker = null;
         }
-        else
-        {
-            // Portrait mode (original)
-            handPos = new Vector3(centerX, centerY, 0);
-        }
-
-        return handPos;
+        isPouringBetweenBeakers = false;
+        if (currentGesture == ManoGestureContinuous.NO_GESTURE)
+            systemStatus = "Chemistry Lab Ready";
     }
 
-    // Calculate beaker position for grab gesture
-    Vector3 CalculateBeakerPosition(Vector3 handPosition)
+    // Safety bounds
+    [Header("Safety Settings")]
+    [SerializeField] private bool enableSafetyBounds = true;
+    [SerializeField] private Vector3 minBounds = new Vector3(-5f, -3f, 5f);
+    [SerializeField] private Vector3 maxBounds = new Vector3(5f, 5f, 15f);
+
+    // Chemistry lab control methods
+    public void RefillAllBeakers()
     {
-        if (useDirectPositioning)
+        RefillSourceBeaker();
+        RefillTargetBeaker();
+    }
+
+    // Methods are properly defined below in the user-added section
+
+    // Add these methods before the closing brace:
+
+void CheckBeakerToBeakerPouring()
+{
+    if (sourceBeakerData != null && targetBeakerData != null)
+    {
+        float distance = Vector3.Distance(sourceBeakerData.beakerObject.transform.position,
+                                        targetBeakerData.beakerObject.transform.position);
+        isPouringBetweenBeakers = distance <= pouringDistance;
+    }
+}
+
+void UpdateWaterPouring()
+{
+    UpdateBeakerPouring(sourceBeakerData);
+    UpdateBeakerPouring(targetBeakerData);
+}
+
+// The remaining methods are properly defined below
+
+void UpdateBeakerPouring(ChemistryBeaker beakerData)
+{
+    if (beakerData?.waterEffect == null) return;
+    
+    Vector3 beakerUp = beakerData.beakerObject.transform.up;
+    float tiltAngle = Vector3.Angle(beakerUp, Vector3.up);
+    
+    // FIXED: Check if beaker has liquid AND is tilted enough to pour
+    if (tiltAngle > pouringThresholdAngle && beakerData.volumeML > 0)
+    {
+        // Use the assigned pour point from Inspector (no need to calculate position)
+        if (beakerData.pourPoint != null && beakerData.waterEffectObj != null)
         {
-            // Direct positioning mode - beaker follows hand exactly
-            if (isLandscapeMode)
+            // Simply use the pour point's current position and rotation
+            beakerData.waterEffectObj.transform.position = beakerData.pourPoint.position;
+            beakerData.waterEffectObj.transform.rotation = beakerData.pourPoint.rotation;
+            
+            Debug.Log($"POURING: Using pour point at {beakerData.pourPoint.position} for {beakerData.beakerObject.name}");
+        }
+        
+        float pourRateMultiplier = Mathf.Clamp01((tiltAngle - pouringThresholdAngle) / (90f - pouringThresholdAngle));
+        float volumeLoss = pourRate * pourRateMultiplier * Time.deltaTime;
+        
+        if (isPouringBetweenBeakers && beakerData == sourceBeakerData && targetBeakerData != null)
+        {
+            float transferAmount = Mathf.Min(volumeLoss, beakerData.volumeML);
+            transferAmount = Mathf.Min(transferAmount, maxBeakerVolume - targetBeakerData.volumeML);
+            
+            beakerData.volumeML -= transferAmount;
+            targetBeakerData.volumeML += transferAmount;
+            
+            // Update target beaker chemical name when receiving liquid
+            if (transferAmount > 0 && targetBeakerData.chemicalName == "Empty")
             {
-                // Direct mapping with proper scaling for landscape mode
-                Vector3 beakerPos = new Vector3(
-                    handPosition.x,
-                    handPosition.y,
-                    handPositionOffset.z
-                );
-                beakerPos += new Vector3(handPositionOffset.x, handPositionOffset.y, 0);
-                return beakerPos;
-            }
-            else
-            {
-                return ManoUtils.Instance.CalculateNewPositionWithDepth(handPosition, 10);
+                targetBeakerData.chemicalName = beakerData.chemicalName;
+                targetBeakerData.liquidColor = beakerData.liquidColor;
             }
         }
         else
         {
-            // Camera-relative positioning (RECOMMENDED)
-            // This keeps beaker visible and moves it relative to camera
-            Camera mainCam = Camera.main;
-            if (mainCam == null)
-            {
-                Debug.LogError("Main camera not found!");
-                return beakerModel.transform.position; // Return current position if no camera
-            }
-
-            // Get hand position in normalized screen space
-            BoundingBox bbox = ManoMotionManager.Instance.HandInfos[0].trackingInfo.boundingBox;
-            float screenX = bbox.topLeft.x + bbox.width / 2f;
-            float screenY = bbox.topLeft.y - bbox.height / 2f;
-
-            // Convert to viewport coordinates (0-1 range)
-            Vector3 viewportPos = new Vector3(screenX, screenY, handPositionOffset.z);
-
-            // Convert viewport to world position
-            Vector3 worldPos = mainCam.ViewportToWorldPoint(viewportPos);
-
-            return worldPos;
+            beakerData.volumeML -= volumeLoss;
         }
-    }
-
-    // Method to refill the beaker if needed
-    public void RefillBeaker()
-    {
-        liquidAmount = 1.0f;
-    }
-
-    // Method to reset beaker to initial position
-    public void ResetBeakerPosition()
-    {
-        beakerModel.transform.position = initialBeakerPosition;
-        beakerModel.transform.rotation = initialBeakerRotation;
-        beakerModel.transform.localScale = FIXED_BEAKER_SCALE;
-        originalBeakerScale = FIXED_BEAKER_SCALE;
-        liquidAmount = 1.0f;
-        beakerStatus = "Reset Complete";
-        Debug.Log($"Beaker reset to initial state - Position: {initialBeakerPosition}, Scale: {FIXED_BEAKER_SCALE}");
-    }
-
-    // Advanced GUI styling
-    private GUIStyle GetHeaderStyle()
-    {
-        GUIStyle style = new GUIStyle(GUI.skin.label);
-        style.fontSize = 22;
-        style.fontStyle = FontStyle.Bold;
-        style.normal.textColor = new Color(0.2f, 0.8f, 1f); // Cyan
-        style.alignment = TextAnchor.MiddleLeft;
-        return style;
-    }
-
-    private GUIStyle GetLabelStyle(int fontSize = 16, Color? color = null)
-    {
-        GUIStyle style = new GUIStyle(GUI.skin.label);
-        style.fontSize = fontSize;
-        style.fontStyle = FontStyle.Bold;
-        style.normal.textColor = color ?? Color.white;
-        style.alignment = TextAnchor.MiddleLeft;
-        return style;
-    }
-
-    private GUIStyle GetButtonStyle()
-    {
-        GUIStyle style = new GUIStyle(GUI.skin.button);
-        style.fontSize = 16;
-        style.fontStyle = FontStyle.Bold;
-        style.normal.textColor = Color.white;
-        style.normal.background = MakeTex(2, 2, new Color(0.8f, 0.2f, 0.2f, 0.8f));
-        style.hover.background = MakeTex(2, 2, new Color(1f, 0.3f, 0.3f, 0.9f));
-        style.active.background = MakeTex(2, 2, new Color(0.6f, 0.1f, 0.1f, 0.9f));
-        return style;
-    }
-
-    private GUIStyle GetModernButtonStyle()
-    {
-        GUIStyle style = new GUIStyle(GUI.skin.button);
-        style.fontSize = 15;
-        style.fontStyle = FontStyle.Bold;
-        style.normal.textColor = Color.white;
-        style.normal.background = MakeTex(2, 2, new Color(0.2f, 0.6f, 0.9f, 0.9f)); // Cyan blue
-        style.hover.background = MakeTex(2, 2, new Color(0.3f, 0.7f, 1f, 1f)); // Bright cyan
-        style.active.background = MakeTex(2, 2, new Color(0.1f, 0.5f, 0.8f, 1f)); // Dark cyan
-        style.alignment = TextAnchor.MiddleCenter;
-        return style;
-    }
-
-    private GUIStyle GetGlassButtonStyle()
-    {
-        GUIStyle style = new GUIStyle(GUI.skin.button);
-        style.fontSize = 16;
-        style.fontStyle = FontStyle.Bold;
-        style.normal.textColor = new Color(0.9f, 1f, 1f);
-        style.normal.background = MakeTex(2, 2, new Color(0.15f, 0.45f, 0.7f, 0.85f)); // Glass cyan
-        style.hover.background = MakeTex(2, 2, new Color(0.2f, 0.6f, 0.95f, 0.95f)); // Bright glass
-        style.active.background = MakeTex(2, 2, new Color(0.1f, 0.35f, 0.6f, 0.95f)); // Dark glass
-        style.alignment = TextAnchor.MiddleCenter;
-        return style;
-    }
-
-    private GUIStyle GetBorderStyle()
-    {
-        GUIStyle style = new GUIStyle(GUI.skin.box);
-        style.normal.background = MakeTex(2, 2, new Color(0.3f, 0.85f, 1f, 0.6f)); // Bright cyan glow
-        return style;
-    }
-
-    private GUIStyle GetOuterGlowStyle()
-    {
-        GUIStyle style = new GUIStyle(GUI.skin.box);
-        style.normal.background = MakeTex(2, 2, new Color(0.1f, 0.5f, 0.8f, 0.25f)); // Soft outer glow
-        return style;
-    }
-
-    private GUIStyle MakeGlowLineStyle()
-    {
-        GUIStyle style = new GUIStyle(GUI.skin.box);
-        style.normal.background = MakeTex(2, 2, new Color(0.4f, 0.9f, 1f, 0.8f)); // Bright glow line
-        return style;
-    }
-
-    private GUIStyle GetStatusBoxStyle()
-    {
-        GUIStyle style = new GUIStyle(GUI.skin.box);
-        style.fontSize = 28;
-        style.fontStyle = FontStyle.Bold;
-        style.alignment = TextAnchor.MiddleCenter;
-        style.normal.textColor = Color.white;
-        style.normal.background = MakeTex(2, 2, new Color(0f, 0f, 0f, 0.7f));
-        return style;
-    }
-
-    private Texture2D MakeTex(int width, int height, Color col)
-    {
-        Color[] pix = new Color[width * height];
-        for (int i = 0; i < pix.Length; i++)
-            pix[i] = col;
-        Texture2D result = new Texture2D(width, height);
-        result.SetPixels(pix);
-        result.Apply();
-        return result;
-    }
-
-    // Debug method to test orientation
-    void OnGUI()
-    {
-        if (showDebugVisuals)
+        
+        beakerData.volumeML = Mathf.Max(0, beakerData.volumeML);
+        
+        // Start particle effect only if there's liquid to pour
+        if (beakerData.volumeML > 0 && !beakerData.waterEffect.isPlaying)
         {
-            // ═══════════════════════════════════════════════════════════
-            // TOP CENTER - GESTURE STATUS DISPLAY (ADVANCED)
-            // ═══════════════════════════════════════════════════════════
-            int screenWidth = Screen.width;
-            int screenHeight = Screen.height;
-
-            int statusWidth = 600;
-            int statusHeight = 80;
-            int statusX = (screenWidth - statusWidth) / 2;
-            int statusY = 20;
-
-            // Draw status background with gradient effect
-            GUI.Box(new Rect(statusX, statusY, statusWidth, statusHeight), "", GetStatusBoxStyle());
-
-            // Determine gesture icon and color
-            string gestureIcon = "⚪";
-            string gestureText = "NO GESTURE";
-            Color gestureColor = Color.gray;
-
-            switch (currentGesture)
-            {
-                case ManoGestureContinuous.OPEN_HAND_GESTURE:
-                    gestureIcon = "✋";
-                    gestureText = "OPEN HAND - TILTING";
-                    gestureColor = new Color(0.2f, 0.8f, 1f); // Cyan
-                    break;
-                case ManoGestureContinuous.CLOSED_HAND_GESTURE:
-                    gestureIcon = "✊";
-                    gestureText = "CLOSED HAND - GRABBING";
-                    gestureColor = new Color(1f, 0.3f, 0.8f); // Magenta
-                    break;
-                case ManoGestureContinuous.OPEN_PINCH_GESTURE:
-                    gestureIcon = "👌";
-                    gestureText = "PINCH - REFILLING";
-                    gestureColor = new Color(1f, 0.8f, 0.2f); // Yellow
-                    break;
-                default:
-                    gestureIcon = "👋";
-                    gestureText = "READY - SHOW HAND";
-                    gestureColor = new Color(0.5f, 0.5f, 0.5f);
-                    break;
-            }
-
-            // Draw gesture icon
-            GUIStyle iconStyle = new GUIStyle(GUI.skin.label);
-            iconStyle.fontSize = 48;
-            iconStyle.alignment = TextAnchor.MiddleCenter;
-            iconStyle.normal.textColor = gestureColor;
-            GUI.Label(new Rect(statusX + 20, statusY + 10, 80, 60), gestureIcon, iconStyle);
-
-            // Draw gesture text
-            GUIStyle textStyle = new GUIStyle(GUI.skin.label);
-            textStyle.fontSize = 24;
-            textStyle.fontStyle = FontStyle.Bold;
-            textStyle.alignment = TextAnchor.MiddleLeft;
-            textStyle.normal.textColor = gestureColor;
-            GUI.Label(new Rect(statusX + 110, statusY + 15, statusWidth - 130, 30), gestureText, textStyle);
-
-            // Draw beaker status
-            GUIStyle statusTextStyle = new GUIStyle(GUI.skin.label);
-            statusTextStyle.fontSize = 18;
-            statusTextStyle.fontStyle = FontStyle.Normal;
-            statusTextStyle.alignment = TextAnchor.MiddleLeft;
-            statusTextStyle.normal.textColor = Color.white;
-            GUI.Label(new Rect(statusX + 110, statusY + 45, statusWidth - 130, 25), $"Status: {beakerStatus}", statusTextStyle);
-
-            // ═══════════════════════════════════════════════════════════
-            // ADVANCED XR CHEMISTRY LAB - FULL CONTROL INTERFACE
-            // ═══════════════════════════════════════════════════════════
-            int mainPanelWidth = 480;
-            int mainPanelHeight = 420;
-            int panelX = 10;
-            int panelY = screenHeight - mainPanelHeight - 10; // Bottom-left positioning
-
-            // ═══════════════════════════════════════════════════════════
-            // MAIN PANEL - Multi-layer glass design
-            // ═══════════════════════════════════════════════════════════
-            GUI.Box(new Rect(panelX - 6, panelY - 6, mainPanelWidth + 12, mainPanelHeight + 12), "", GetOuterGlowStyle());
-            GUI.Box(new Rect(panelX - 3, panelY - 3, mainPanelWidth + 6, mainPanelHeight + 6), "", GetBorderStyle());
-
-            GUIStyle mainPanelStyle = new GUIStyle(GUI.skin.box);
-            mainPanelStyle.normal.background = MakeTex(2, 2, new Color(0.01f, 0.03f, 0.08f, 0.97f));
-            GUI.Box(new Rect(panelX, panelY, mainPanelWidth, mainPanelHeight), "", mainPanelStyle);
-
-            // ═══════════════════════════════════════════════════════════
-            // HEADER SECTION - Title + Control Buttons
-            // ═══════════════════════════════════════════════════════════
-            GUIStyle headerBg = new GUIStyle(GUI.skin.box);
-            headerBg.normal.background = MakeTex(2, 2, new Color(0.03f, 0.15f, 0.3f, 0.95f));
-            GUI.Box(new Rect(panelX, panelY, mainPanelWidth, 55), "", headerBg);
-            GUI.Box(new Rect(panelX, panelY + 53, mainPanelWidth, 2), "", MakeGlowLineStyle());
-
-            // Title
-            GUIStyle titleStyle = new GUIStyle(GUI.skin.label);
-            titleStyle.fontSize = 24;
-            titleStyle.fontStyle = FontStyle.Bold;
-            titleStyle.normal.textColor = new Color(0.7f, 1f, 1f);
-            titleStyle.alignment = TextAnchor.MiddleLeft;
-            GUI.Label(new Rect(panelX + 20, panelY + 12, 300, 32), "⚗️ XR CHEMISTRY LAB", titleStyle);
-
-            // System Status Indicator
-            GUIStyle versionStyle = new GUIStyle(GUI.skin.label);
-            versionStyle.fontSize = 11;
-            versionStyle.normal.textColor = new Color(0.5f, 0.8f, 0.9f);
-            GUI.Label(new Rect(panelX + 20, panelY + 38, 200, 15), "System: ONLINE | v3.0", versionStyle);
-
-            // ═══════════════════════════════════════════════════════════
-            // CONTROL BUTTONS ROW - Top right
-            // ═══════════════════════════════════════════════════════════
-            int buttonY = panelY + 10;
-            int buttonWidth = 85;
-            int buttonHeight = 35;
-            int buttonSpacing = 5;
-            int buttonStartX = panelX + mainPanelWidth - (buttonWidth * 3 + buttonSpacing * 2 + 15);
-
-            // RESET Button
-            if (GUI.Button(new Rect(buttonStartX, buttonY, buttonWidth, buttonHeight), "⟲ RESET", GetControlButtonStyle(new Color(0.8f, 0.3f, 0.3f))))
-            {
-                ResetBeakerPosition();
-            }
-
-            // REFILL Button
-            if (GUI.Button(new Rect(buttonStartX + buttonWidth + buttonSpacing, buttonY, buttonWidth, buttonHeight), "💧 REFILL", GetControlButtonStyle(new Color(0.2f, 0.6f, 0.9f))))
-            {
-                liquidAmount = 1.0f;
-                beakerStatus = "Refilled";
-            }
-
-            // CLEAR Button
-            if (GUI.Button(new Rect(buttonStartX + (buttonWidth + buttonSpacing) * 2, buttonY, buttonWidth, buttonHeight), "🗑 CLEAR", GetControlButtonStyle(new Color(0.6f, 0.6f, 0.6f))))
-            {
-                liquidAmount = 0f;
-                beakerStatus = "Cleared";
-            }
-
-            int yPos = panelY + 68;
-            int lineHeight = 24;
-
-            // Get beaker tilt angle
-            float currentTiltZ = beakerModel.transform.eulerAngles.z;
-            if (currentTiltZ > 180f) currentTiltZ -= 360f;
-            Vector3 beakerUp = beakerModel.transform.up;
-            float tiltAngle = Vector3.Angle(beakerUp, Vector3.up);
-
-            // ═══════════════════════════════════════════════════════════
-            // SECTION 1: BEAKER DIAGNOSTICS
-            // ═══════════════════════════════════════════════════════════
-            DrawXRSectionHeader(panelX + 18, yPos, mainPanelWidth - 36, "🔬 BEAKER DIAGNOSTICS");
-            yPos += 30;
-
-            // Beaker Tilt with visual indicator
-            Color tiltColor = Mathf.Abs(currentTiltZ) > 20f ? new Color(1f, 0.7f, 0.3f) : new Color(0.6f, 0.95f, 1f);
-            GUI.Label(new Rect(panelX + 25, yPos, mainPanelWidth - 50, lineHeight), $"↻ Rotation: {currentTiltZ:F1}°  |  Tilt Angle: {tiltAngle:F1}°", GetXRDataStyle(14, tiltColor));
-            yPos += lineHeight;
-
-            // Show beaker position with coordinate system
-            Vector3 beakerPos = beakerModel.transform.position;
-            GUI.Label(new Rect(panelX + 25, yPos, mainPanelWidth - 50, lineHeight), $"📍 Position: X:{beakerPos.x:F1} Y:{beakerPos.y:F1} Z:{beakerPos.z:F1}", GetXRDataStyle(14, new Color(0.6f, 0.95f, 1f)));
-            yPos += lineHeight;
-
-            // Show beaker scale with LOCKED status indicator
-            Vector3 beakerScale = beakerModel.transform.localScale;
-            bool scaleCorrect = Vector3.Distance(beakerScale, FIXED_BEAKER_SCALE) < 0.01f;
-            Color scaleColor = scaleCorrect ? new Color(0.3f, 1f, 0.4f) : new Color(1f, 0.2f, 0.2f);
-            string scaleIcon = scaleCorrect ? "🔒" : "⚠";
-            string scaleStatus = scaleCorrect ? "LOCKED" : "ERROR";
-            GUI.Label(new Rect(panelX + 25, yPos, mainPanelWidth - 50, lineHeight), $"{scaleIcon} Size: ({beakerScale.x:F1}, {beakerScale.y:F1}, {beakerScale.z:F1}) - {scaleStatus}", GetXRDataStyle(14, scaleColor));
-            yPos += lineHeight + 10;
-
-            // ═══════════════════════════════════════════════════════════
-            // SECTION 2: LIQUID MANAGEMENT
-            // ═══════════════════════════════════════════════════════════
-            DrawXRSectionHeader(panelX + 18, yPos, mainPanelWidth - 36, "💧 LIQUID MANAGEMENT");
-            yPos += 30;
-
-            // Calculate liquid volume in mL (assuming 500mL beaker for scale 5)
-            float volumeML = liquidAmount * 500f;
-            Color liquidColor = liquidAmount > 0.5f ? new Color(0.3f, 1f, 0.4f) : (liquidAmount > 0.2f ? new Color(1f, 0.9f, 0.3f) : new Color(1f, 0.3f, 0.3f));
-            GUI.Label(new Rect(panelX + 25, yPos, mainPanelWidth - 50, lineHeight), $"💧 Volume: {volumeML:F0} mL / 500 mL ({liquidAmount:P0})", GetXRDataStyle(15, liquidColor));
-            yPos += 26;
-
-            // Draw ADVANCED liquid progress bar with 3D effect
-            float barWidth = mainPanelWidth - 50;
-            int barHeight = 20;
-
-            // Draw bar shadow
-            GUI.Box(new Rect(panelX + 27, yPos + 2, barWidth, barHeight), "", GetBarShadowStyle());
-
-            // Draw bar container with border
-            GUI.Box(new Rect(panelX + 25, yPos, barWidth, barHeight), "", GetXRBarBorderStyle());
-            GUI.Box(new Rect(panelX + 26, yPos + 1, barWidth - 2, barHeight - 2), "", GetBarBackgroundStyle());
-
-            // Draw liquid fill with gradient glow effect
-            if (liquidAmount > 0)
-            {
-                float fillWidth = (barWidth - 2) * liquidAmount;
-                GUI.Box(new Rect(panelX + 26, yPos + 1, fillWidth, barHeight - 2), "", GetBarFillStyle(liquidColor));
-
-                // Add top glow
-                GUI.Box(new Rect(panelX + 26, yPos + 1, fillWidth, 5), "", GetBarGlowStyle(liquidColor));
-
-                // Add percentage text on bar
-                GUIStyle barTextStyle = new GUIStyle(GUI.skin.label);
-                barTextStyle.fontSize = 12;
-                barTextStyle.fontStyle = FontStyle.Bold;
-                barTextStyle.alignment = TextAnchor.MiddleCenter;
-                barTextStyle.normal.textColor = Color.white;
-                GUI.Label(new Rect(panelX + 25, yPos, barWidth, barHeight), $"{liquidAmount:P0}", barTextStyle);
-            }
-            yPos += barHeight + 14;
-
-            // Show pouring status with XR terminology
-            if (tiltAngle > pouringThresholdAngle && liquidAmount > 0)
-            {
-                GUI.Label(new Rect(panelX + 25, yPos, mainPanelWidth - 50, lineHeight), "⚗️ LIQUID TRANSFER ACTIVE", GetXRStatusStyle(16, new Color(0.3f, 1f, 0.4f)));
-            }
-            else if (liquidAmount <= 0)
-            {
-                GUI.Label(new Rect(panelX + 25, yPos, mainPanelWidth - 50, lineHeight), "⚠ CONTAINER EMPTY", GetXRStatusStyle(16, new Color(1f, 0.3f, 0.3f)));
-            }
-            else
-            {
-                GUI.Label(new Rect(panelX + 25, yPos, mainPanelWidth - 50, lineHeight), "✓ READY FOR OPERATION", GetXRStatusStyle(16, new Color(0.4f, 0.9f, 1f)));
-            }
-            yPos += lineHeight + 12;
-
-            // ═══════════════════════════════════════════════════════════
-            // SECTION 3: GESTURE TRACKING SYSTEM
-            // ═══════════════════════════════════════════════════════════
-            DrawXRSectionHeader(panelX + 18, yPos, mainPanelWidth - 36, "👋 GESTURE TRACKING");
-            yPos += 30;
-
-            // Hand tracking info with detailed status
-            if (ManoMotionManager.Instance?.HandInfos != null)
-            {
-                bool handDetected = false;
-                foreach (var handInfo in ManoMotionManager.Instance.HandInfos)
-                {
-                    if (handInfo.gestureInfo.manoClass != ManoClass.NO_HAND)
-                    {
-                        handDetected = true;
-                        var bbox = handInfo.trackingInfo.boundingBox;
-                        float centerX = bbox.topLeft.x + bbox.width / 2f;
-                        float centerY = bbox.topLeft.y - bbox.height / 2f;
-
-                        GUI.Label(new Rect(panelX + 25, yPos, mainPanelWidth - 50, lineHeight), $"✓ System Status: TRACKING ACTIVE", GetXRDataStyle(14, new Color(0.3f, 1f, 0.4f)));
-                        yPos += lineHeight;
-                        GUI.Label(new Rect(panelX + 25, yPos, mainPanelWidth - 50, lineHeight), $"   Hand Position: ({centerX:F2}, {centerY:F2})", GetXRDataStyle(13, new Color(0.6f, 0.95f, 1f)));
-                        yPos += lineHeight;
-                        GUI.Label(new Rect(panelX + 25, yPos, mainPanelWidth - 50, lineHeight), $"   Confidence: HIGH", GetXRDataStyle(13, new Color(0.3f, 1f, 0.4f)));
-                        break;
-                    }
-                }
-
-                if (!handDetected)
-                {
-                    GUI.Label(new Rect(panelX + 25, yPos, mainPanelWidth - 50, lineHeight), "⚠ System Status: WAITING FOR INPUT", GetXRDataStyle(14, new Color(1f, 0.6f, 0.3f)));
-                    yPos += lineHeight;
-                    GUI.Label(new Rect(panelX + 25, yPos, mainPanelWidth - 50, lineHeight), "   Position hand in camera view", GetXRDataStyle(12, new Color(0.6f, 0.6f, 0.6f)));
-                }
-            }
-
-            // ═══════════════════════════════════════════════════════════
-            // FOOTER - Quick Actions
-            // ═══════════════════════════════════════════════════════════
-            yPos = panelY + mainPanelHeight - 45;
-            GUI.Box(new Rect(panelX, yPos, mainPanelWidth, 1), "", MakeGlowLineStyle());
-
-            GUIStyle footerStyle = new GUIStyle(GUI.skin.label);
-            footerStyle.fontSize = 10;
-            footerStyle.normal.textColor = new Color(0.5f, 0.7f, 0.8f);
-            footerStyle.alignment = TextAnchor.MiddleLeft;
-            GUI.Label(new Rect(panelX + 20, yPos + 8, mainPanelWidth - 40, 30), "Quick Actions: ⟲ Reset | 💧 Refill | 🗑 Clear | Gestures: ✋ Tilt | ✊ Move | 👌 Refill", footerStyle);
+            beakerData.waterEffect.Play();
         }
     }
-
-    // Helper method to draw section headers
-    void DrawSectionHeader(float x, float y, float width, string text)
+    
+    // FIXED: Stop pouring immediately when beaker is empty OR not tilted enough
+    if (beakerData.volumeML <= 0 || tiltAngle <= pouringThresholdAngle)
     {
-        GUIStyle headerStyle = new GUIStyle(GUI.skin.label);
-        headerStyle.fontSize = 14;
-        headerStyle.fontStyle = FontStyle.Bold;
-        headerStyle.normal.textColor = new Color(0.5f, 0.9f, 1f);
-        headerStyle.alignment = TextAnchor.MiddleLeft;
-
-        // Draw underline
-        GUI.Box(new Rect(x, y + 18, width, 2), "", GetBorderStyle());
-        GUI.Label(new Rect(x, y, width, 20), text, headerStyle);
+        if (beakerData.waterEffect.isPlaying)
+        {
+            beakerData.waterEffect.Stop();
+            Debug.Log($"STOPPED POURING: {beakerData.beakerObject.name} - Volume: {beakerData.volumeML:F0}mL, Tilt: {tiltAngle:F1}°");
+        }
+        
+        // SPECIAL: If source beaker is empty, automatically return it to upright position
+        if (beakerData == sourceBeakerData && beakerData.volumeML <= 0)
+        {
+            beakerData.beakerObject.transform.rotation = Quaternion.Lerp(
+                beakerData.beakerObject.transform.rotation,
+                beakerData.initialRotation,
+                Time.deltaTime * 10f // Very fast return when empty
+            );
+            beakerData.beakerObject.transform.position = beakerData.initialPosition;
+            
+            // Check if close to upright and snap
+            float currentAngle = Mathf.Abs(beakerData.beakerObject.transform.eulerAngles.z);
+            if (currentAngle > 180f) currentAngle = 360f - currentAngle;
+            if (currentAngle < 5f)
+            {
+                beakerData.beakerObject.transform.rotation = beakerData.initialRotation;
+                systemStatus = "Source beaker empty - returned to upright position";
+            }
+        }
     }
+}
 
-    // Chemistry lab section header with enhanced styling
-    void DrawChemSectionHeader(float x, float y, float width, string text)
+Vector3 CalculateHandPosition(BoundingBox boundingBox)
+{
+    float centerX = boundingBox.topLeft.x + boundingBox.width / 2f;
+    float centerY = boundingBox.topLeft.y - boundingBox.height / 2f;
+    
+    if (isLandscapeMode)
     {
-        // Draw background bar
-        GUI.Box(new Rect(x - 5, y, width + 10, 26), "", GetChemHeaderBgStyle());
-
-        GUIStyle headerStyle = new GUIStyle(GUI.skin.label);
-        headerStyle.fontSize = 15;
-        headerStyle.fontStyle = FontStyle.Bold;
-        headerStyle.normal.textColor = new Color(0.85f, 1f, 1f);
-        headerStyle.alignment = TextAnchor.MiddleLeft;
-
-        // Draw glow line at bottom
-        GUI.Box(new Rect(x, y + 24, width, 2), "", MakeGlowLineStyle());
-        GUI.Label(new Rect(x + 2, y + 2, width, 22), text, headerStyle);
+        float normalizedX = (centerY - 0.5f) * coordinateScale;
+        float normalizedY = (0.5f - centerX) * coordinateScale;
+        return new Vector3(normalizedX, normalizedY, 0) + handPositionOffset;
     }
+    return new Vector3(centerX, centerY, 0);
+}
 
-    GUIStyle GetChemHeaderBgStyle()
+// Professional UI methods
+void OnGUI()
+{
+    DrawProfessionalChemistryUI();
+}
+
+void DrawProfessionalChemistryUI()
+{
+    int screenWidth = Screen.width;
+    int screenHeight = Screen.height;
+    
+    // Enhanced panels at bottom corners
+    int panelWidth = 320;
+    int panelHeight = 200;
+    int bottomMargin = 20;
+    
+    // Bottom-left: Source Beaker Panel
+    DrawEnhancedSourcePanel(15, screenHeight - panelHeight - bottomMargin, panelWidth, panelHeight);
+    
+    // Bottom-right: Target Beaker Panel  
+    DrawEnhancedTargetPanel(screenWidth - panelWidth - 15, screenHeight - panelHeight - bottomMargin, panelWidth, panelHeight);
+    
+    // Top-center: Enhanced Status Bar
+    DrawEnhancedStatusBar(screenWidth, screenHeight);
+}
+
+void DrawEnhancedSourcePanel(int x, int y, int width, int height)
+{
+    // Modern gradient background with rounded corners effect
+    GUIStyle panelBg = new GUIStyle(GUI.skin.box);
+    panelBg.normal.background = MakeTex(2, 2, new Color(0.05f, 0.05f, 0.1f, 0.95f));
+    GUI.Box(new Rect(x, y, width, height), "", panelBg);
+    
+    // Glowing border effect
+    GUIStyle borderStyle = new GUIStyle(GUI.skin.box);
+    borderStyle.normal.background = MakeTex(2, 2, new Color(1f, 0.7f, 0.2f, 0.8f));
+    GUI.Box(new Rect(x - 2, y - 2, width + 4, height + 4), "", borderStyle);
+    GUI.Box(new Rect(x, y, width, height), "", panelBg);
+    
+    // Premium header with gradient
+    GUIStyle headerGradient = new GUIStyle(GUI.skin.box);
+    headerGradient.normal.background = MakeTex(2, 2, new Color(1f, 0.6f, 0.1f, 0.9f));
+    GUI.Box(new Rect(x, y, width, 45), "", headerGradient);
+    
+    // Glass effect overlay
+    GUIStyle glassEffect = new GUIStyle(GUI.skin.box);
+    glassEffect.normal.background = MakeTex(2, 2, new Color(1f, 1f, 1f, 0.1f));
+    GUI.Box(new Rect(x, y, width, 22), "", glassEffect);
+    
+    // Enhanced title with shadow effect
+    GUIStyle titleShadow = new GUIStyle(GUI.skin.label);
+    titleShadow.fontSize = 16;
+    titleShadow.fontStyle = FontStyle.Bold;
+    titleShadow.normal.textColor = new Color(0, 0, 0, 0.5f);
+    titleShadow.alignment = TextAnchor.MiddleCenter;
+    GUI.Label(new Rect(x + 1, y + 12, width, 25), "⚗️ SOURCE BEAKER", titleShadow);
+    
+    GUIStyle titleMain = new GUIStyle(GUI.skin.label);
+    titleMain.fontSize = 16;
+    titleMain.fontStyle = FontStyle.Bold;
+    titleMain.normal.textColor = Color.white;
+    titleMain.alignment = TextAnchor.MiddleCenter;
+    GUI.Label(new Rect(x, y + 11, width, 25), "⚗️ SOURCE BEAKER", titleMain);
+    
+    int yPos = y + 55;
+    int lineHeight = 22;
+    
+    if (sourceBeakerData != null)
     {
-        GUIStyle style = new GUIStyle(GUI.skin.box);
-        style.normal.background = MakeTex(2, 2, new Color(0.08f, 0.2f, 0.35f, 0.7f));
-        return style;
+        // Chemical name with icon
+        GUI.Label(new Rect(x + 15, yPos, width - 30, lineHeight), 
+                 $"🧪 Chemical: {sourceBeakerData.chemicalName}", GetEnhancedLabelStyle(14, new Color(0.9f, 0.9f, 0.9f)));
+        yPos += lineHeight;
+        
+        // Volume with enhanced styling
+        GUI.Label(new Rect(x + 15, yPos, width - 30, lineHeight), 
+                 $"📊 Volume: {sourceBeakerData.volumeML:F0}mL / {maxBeakerVolume:F0}mL", GetEnhancedLabelStyle(13, new Color(0.8f, 0.8f, 1f)));
+        yPos += lineHeight;
+        
+        // Enhanced volume bar with glow
+        float volumeRatio = sourceBeakerData.volumeML / maxBeakerVolume;
+        DrawEnhancedVolumeBar(x + 15, yPos, width - 30, 20, volumeRatio, new Color(1f, 0.7f, 0.2f), "ACID");
+        yPos += 30;
+        
+        // Status with icon
+        GUI.Label(new Rect(x + 15, yPos, width - 30, lineHeight), 
+                 "🔒 Status: FIXED POSITION", GetEnhancedStatusStyle(new Color(0.2f, 1f, 0.3f)));
+        yPos += lineHeight + 10;
+        
+        // Enhanced refill button
+        if (GUI.Button(new Rect(x + 15, yPos, width - 30, 35), "💧 REFILL ACID", GetEnhancedButtonStyle(new Color(1f, 0.6f, 0.1f))))
+        {
+            RefillSourceBeaker();
+        }
     }
+}
 
-    // Data label style
-    GUIStyle GetDataLabelStyle(int fontSize, Color color)
+// All remaining UI methods and helper functions are properly defined below
+
+void DrawEnhancedTargetPanel(int x, int y, int width, int height)
+{
+    // Modern gradient background
+    GUIStyle panelBg = new GUIStyle(GUI.skin.box);
+    panelBg.normal.background = MakeTex(2, 2, new Color(0.05f, 0.1f, 0.15f, 0.95f));
+    GUI.Box(new Rect(x, y, width, height), "", panelBg);
+    
+    // Cyan glowing border for target beaker
+    GUIStyle borderStyle = new GUIStyle(GUI.skin.box);
+    borderStyle.normal.background = MakeTex(2, 2, new Color(0.2f, 0.8f, 1f, 0.8f));
+    GUI.Box(new Rect(x - 2, y - 2, width + 4, height + 4), "", borderStyle);
+    GUI.Box(new Rect(x, y, width, height), "", panelBg);
+    
+    // Premium header with cyan gradient
+    GUIStyle headerGradient = new GUIStyle(GUI.skin.box);
+    headerGradient.normal.background = MakeTex(2, 2, new Color(0.1f, 0.6f, 1f, 0.9f));
+    GUI.Box(new Rect(x, y, width, 45), "", headerGradient);
+    
+    // Glass effect overlay
+    GUIStyle glassEffect = new GUIStyle(GUI.skin.box);
+    glassEffect.normal.background = MakeTex(2, 2, new Color(1f, 1f, 1f, 0.1f));
+    GUI.Box(new Rect(x, y, width, 22), "", glassEffect);
+    
+    // Enhanced title with shadow effect
+    GUIStyle titleShadow = new GUIStyle(GUI.skin.label);
+    titleShadow.fontSize = 16;
+    titleShadow.fontStyle = FontStyle.Bold;
+    titleShadow.normal.textColor = new Color(0, 0, 0, 0.5f);
+    titleShadow.alignment = TextAnchor.MiddleCenter;
+    GUI.Label(new Rect(x + 1, y + 12, width, 25), "🥽 TARGET BEAKER", titleShadow);
+    
+    GUIStyle titleMain = new GUIStyle(GUI.skin.label);
+    titleMain.fontSize = 16;
+    titleMain.fontStyle = FontStyle.Bold;
+    titleMain.normal.textColor = Color.white;
+    titleMain.alignment = TextAnchor.MiddleCenter;
+    GUI.Label(new Rect(x, y + 11, width, 25), "🥽 TARGET BEAKER", titleMain);
+    
+    int yPos = y + 55;
+    int lineHeight = 22;
+    
+    if (targetBeakerData != null)
     {
-        GUIStyle style = new GUIStyle(GUI.skin.label);
-        style.fontSize = fontSize;
-        style.fontStyle = FontStyle.Normal;
-        style.normal.textColor = color;
-        style.alignment = TextAnchor.MiddleLeft;
-        return style;
+        // Chemical name with icon
+        string chemicalDisplay = targetBeakerData.chemicalName == "Empty" ? "🫗 Empty" : $"🧪 {targetBeakerData.chemicalName}";
+        Color chemicalColor = targetBeakerData.chemicalName == "Empty" ? new Color(0.7f, 0.7f, 0.7f) : new Color(0.9f, 0.9f, 0.9f);
+        GUI.Label(new Rect(x + 15, yPos, width - 30, lineHeight), 
+                 $"Chemical: {chemicalDisplay}", GetEnhancedLabelStyle(14, chemicalColor));
+        yPos += lineHeight;
+        
+        // Volume with enhanced styling
+        GUI.Label(new Rect(x + 15, yPos, width - 30, lineHeight), 
+                 $"📊 Volume: {targetBeakerData.volumeML:F0}mL / {maxBeakerVolume:F0}mL", GetEnhancedLabelStyle(13, new Color(0.8f, 1f, 1f)));
+        yPos += lineHeight;
+        
+        // Enhanced volume bar
+        float volumeRatio = targetBeakerData.volumeML / maxBeakerVolume;
+        Color barColor = targetBeakerData.volumeML > 0 ? new Color(0.2f, 0.8f, 1f) : new Color(0.3f, 0.3f, 0.3f);
+        string barLabel = targetBeakerData.volumeML > 0 ? "MIXED" : "EMPTY";
+        DrawEnhancedVolumeBar(x + 15, yPos, width - 30, 20, volumeRatio, barColor, barLabel);
+        yPos += 30;
+        
+        // Status with dynamic icon and color
+        string statusIcon = targetBeakerData.isGrabbed ? "✋" : "🎯";
+        string statusText = targetBeakerData.isGrabbed ? "GRABBED - MOVABLE" : "READY TO GRAB";
+        Color statusColor = targetBeakerData.isGrabbed ? new Color(1f, 1f, 0.2f) : new Color(0.2f, 1f, 1f);
+        GUI.Label(new Rect(x + 15, yPos, width - 30, lineHeight), 
+                 $"{statusIcon} Status: {statusText}", GetEnhancedStatusStyle(statusColor));
+        yPos += lineHeight + 10;
+        
+        // Enhanced dual buttons
+        int buttonWidth = (width - 45) / 2;
+        
+        if (GUI.Button(new Rect(x + 15, yPos, buttonWidth, 35), "💧 REFILL\n250mL", GetEnhancedButtonStyle(new Color(0.1f, 0.6f, 1f))))
+        {
+            RefillTargetBeaker();
+        }
+        
+        if (GUI.Button(new Rect(x + 30 + buttonWidth, yPos, buttonWidth, 35), "🗑 CLEAR\nEMPTY", GetEnhancedButtonStyle(new Color(1f, 0.3f, 0.3f))))
+        {
+            ClearTargetBeaker();
+        }
     }
+}
 
-    // Chemistry data label style (monospace-like)
-    GUIStyle GetChemDataStyle(int fontSize, Color color)
+void DrawEnhancedStatusBar(int screenWidth, int screenHeight)
+{
+    int statusWidth = 400;
+    int statusHeight = 60;
+    int statusX = (screenWidth - statusWidth) / 2;
+    int statusY = 20;
+    
+    // Modern status bar with gradient and glow
+    GUIStyle statusBorder = new GUIStyle(GUI.skin.box);
+    statusBorder.normal.background = MakeTex(2, 2, new Color(0.5f, 0.5f, 1f, 0.6f));
+    GUI.Box(new Rect(statusX - 3, statusY - 3, statusWidth + 6, statusHeight + 6), "", statusBorder);
+    
+    GUIStyle statusBg = new GUIStyle(GUI.skin.box);
+    statusBg.normal.background = MakeTex(2, 2, new Color(0.1f, 0.1f, 0.2f, 0.9f));
+    GUI.Box(new Rect(statusX, statusY, statusWidth, statusHeight), "", statusBg);
+    
+    // Glass effect
+    GUIStyle glassEffect = new GUIStyle(GUI.skin.box);
+    glassEffect.normal.background = MakeTex(2, 2, new Color(1f, 1f, 1f, 0.1f));
+    GUI.Box(new Rect(statusX, statusY, statusWidth, statusHeight / 2), "", glassEffect);
+    
+    // Enhanced gesture display with icons and colors
+    string gestureIcon = "👋";
+    string gestureText = "READY - SHOW HAND";
+    Color gestureColor = new Color(0.8f, 0.8f, 0.8f);
+    
+    switch (currentGesture)
     {
-        GUIStyle style = new GUIStyle(GUI.skin.label);
-        style.fontSize = fontSize;
-        style.fontStyle = FontStyle.Normal;
-        style.normal.textColor = color;
-        style.alignment = TextAnchor.MiddleLeft;
-        return style;
+        case ManoGestureContinuous.OPEN_HAND_GESTURE:
+            gestureIcon = "🖐️";
+            gestureText = "TILTING BEAKER";
+            gestureColor = new Color(1f, 0.8f, 0.2f);
+            break;
+        case ManoGestureContinuous.CLOSED_HAND_GESTURE:
+            gestureIcon = "✊";
+            gestureText = "GRABBING BEAKER";
+            gestureColor = new Color(0.2f, 1f, 0.3f);
+            break;
+        case ManoGestureContinuous.OPEN_PINCH_GESTURE:
+            gestureIcon = "👌";
+            gestureText = "REFILLING BEAKER";
+            gestureColor = new Color(0.2f, 0.8f, 1f);
+            break;
     }
+    
+    // Main gesture text with shadow
+    GUIStyle gestureTextShadow = new GUIStyle(GUI.skin.label);
+    gestureTextShadow.fontSize = 18;
+    gestureTextShadow.fontStyle = FontStyle.Bold;
+    gestureTextShadow.normal.textColor = new Color(0, 0, 0, 0.5f);
+    gestureTextShadow.alignment = TextAnchor.MiddleCenter;
+    GUI.Label(new Rect(statusX + 1, statusY + 9, statusWidth, 25), $"{gestureIcon} {gestureText}", gestureTextShadow);
+    
+    GUIStyle gestureTextMain = new GUIStyle(GUI.skin.label);
+    gestureTextMain.fontSize = 18;
+    gestureTextMain.fontStyle = FontStyle.Bold;
+    gestureTextMain.normal.textColor = gestureColor;
+    gestureTextMain.alignment = TextAnchor.MiddleCenter;
+    GUI.Label(new Rect(statusX, statusY + 8, statusWidth, 25), $"{gestureIcon} {gestureText}", gestureTextMain);
+    
+    // System status with enhanced styling
+    GUIStyle systemStatusStyle = new GUIStyle(GUI.skin.label);
+    systemStatusStyle.fontSize = 12;
+    systemStatusStyle.normal.textColor = new Color(0.9f, 0.9f, 0.9f);
+    systemStatusStyle.alignment = TextAnchor.MiddleCenter;
+    GUI.Label(new Rect(statusX, statusY + 35, statusWidth, 20), $"⚡ System: {systemStatus}", systemStatusStyle);
+}
 
-    // Status label style (bold)
-    GUIStyle GetStatusLabelStyle(int fontSize, Color color)
+void DrawEnhancedVolumeBar(int x, int y, int width, int height, float ratio, Color liquidColor, string label)
+{
+    // Dark background with border
+    GUIStyle bgStyle = new GUIStyle(GUI.skin.box);
+    bgStyle.normal.background = MakeTex(2, 2, new Color(0.1f, 0.1f, 0.1f, 0.8f));
+    GUI.Box(new Rect(x, y, width, height), "", bgStyle);
+    
+    // Glowing border
+    GUIStyle borderStyle = new GUIStyle(GUI.skin.box);
+    borderStyle.normal.background = MakeTex(2, 2, new Color(liquidColor.r, liquidColor.g, liquidColor.b, 0.6f));
+    GUI.Box(new Rect(x - 1, y - 1, width + 2, height + 2), "", borderStyle);
+    GUI.Box(new Rect(x, y, width, height), "", bgStyle);
+    
+    if (ratio > 0)
     {
-        GUIStyle style = new GUIStyle(GUI.skin.label);
-        style.fontSize = fontSize;
-        style.fontStyle = FontStyle.Bold;
-        style.normal.textColor = color;
-        style.alignment = TextAnchor.MiddleLeft;
-        return style;
+        // Gradient fill effect
+        GUIStyle fillStyle = new GUIStyle(GUI.skin.box);
+        fillStyle.normal.background = MakeTex(2, 2, liquidColor);
+        GUI.Box(new Rect(x + 2, y + 2, (width - 4) * ratio, height - 4), "", fillStyle);
+        
+        // Highlight effect on top
+        GUIStyle highlightStyle = new GUIStyle(GUI.skin.box);
+        highlightStyle.normal.background = MakeTex(2, 2, new Color(liquidColor.r + 0.3f, liquidColor.g + 0.3f, liquidColor.b + 0.3f, 0.5f));
+        GUI.Box(new Rect(x + 2, y + 2, (width - 4) * ratio, (height - 4) / 3), "", highlightStyle);
     }
+    
+    // Enhanced text with shadow
+    GUIStyle textShadow = new GUIStyle(GUI.skin.label);
+    textShadow.fontSize = 11;
+    textShadow.fontStyle = FontStyle.Bold;
+    textShadow.normal.textColor = new Color(0, 0, 0, 0.8f);
+    textShadow.alignment = TextAnchor.MiddleCenter;
+    GUI.Label(new Rect(x + 1, y + 1, width, height), $"{ratio * 100:F0}% {label}", textShadow);
+    
+    GUIStyle textMain = new GUIStyle(GUI.skin.label);
+    textMain.fontSize = 11;
+    textMain.fontStyle = FontStyle.Bold;
+    textMain.normal.textColor = Color.white;
+    textMain.alignment = TextAnchor.MiddleCenter;
+    GUI.Label(new Rect(x, y, width, height), $"{ratio * 100:F0}% {label}", textMain);
+}
 
-    // Chemistry status label (bold with glow effect)
-    GUIStyle GetChemStatusStyle(int fontSize, Color color)
+void DrawCompactVolumeBar(int x, int y, int width, int height, float ratio, Color liquidColor)
+{
+    GUI.Box(new Rect(x, y, width, height), "", GetBarBackgroundStyle());
+    
+    if (ratio > 0)
     {
-        GUIStyle style = new GUIStyle(GUI.skin.label);
-        style.fontSize = fontSize;
-        style.fontStyle = FontStyle.Bold;
-        style.normal.textColor = color;
-        style.alignment = TextAnchor.MiddleLeft;
-        return style;
+        GUIStyle fillStyle = new GUIStyle(GUI.skin.box);
+        fillStyle.normal.background = MakeTex(2, 2, liquidColor);
+        GUI.Box(new Rect(x + 1, y + 1, (width - 2) * ratio, height - 2), "", fillStyle);
     }
+    
+    GUIStyle textStyle = new GUIStyle(GUI.skin.label);
+    textStyle.fontSize = 10;
+    textStyle.fontStyle = FontStyle.Bold;
+    textStyle.normal.textColor = Color.white;
+    textStyle.alignment = TextAnchor.MiddleCenter;
+    GUI.Label(new Rect(x, y, width, height), $"{ratio * 100:F0}%", textStyle);
+}
 
-    // Progress bar background
-    GUIStyle GetBarBackgroundStyle()
+GUIStyle GetEnhancedLabelStyle(int fontSize, Color color)
+{
+    GUIStyle style = new GUIStyle(GUI.skin.label);
+    style.fontSize = fontSize;
+    style.normal.textColor = color;
+    style.fontStyle = FontStyle.Normal;
+    return style;
+}
+
+GUIStyle GetEnhancedStatusStyle(Color color)
+{
+    GUIStyle style = new GUIStyle(GUI.skin.label);
+    style.fontSize = 13;
+    style.fontStyle = FontStyle.Bold;
+    style.normal.textColor = color;
+    return style;
+}
+
+GUIStyle GetEnhancedButtonStyle(Color baseColor)
+{
+    GUIStyle style = new GUIStyle(GUI.skin.button);
+    style.fontSize = 12;
+    style.fontStyle = FontStyle.Bold;
+    style.normal.textColor = Color.white;
+    style.alignment = TextAnchor.MiddleCenter;
+    
+    // Enhanced button with gradient and glow
+    style.normal.background = MakeTex(2, 2, baseColor);
+    style.hover.background = MakeTex(2, 2, new Color(baseColor.r * 1.3f, baseColor.g * 1.3f, baseColor.b * 1.3f, 1f));
+    style.active.background = MakeTex(2, 2, new Color(baseColor.r * 0.8f, baseColor.g * 0.8f, baseColor.b * 0.8f, 1f));
+    
+    return style;
+}
+
+GUIStyle GetCompactLabelStyle()
+{
+    GUIStyle style = new GUIStyle(GUI.skin.label);
+    style.fontSize = 11;
+    style.normal.textColor = Color.white;
+    return style;
+}
+
+GUIStyle GetCompactStatusStyle(Color color)
+{
+    GUIStyle style = new GUIStyle(GUI.skin.label);
+    style.fontSize = 11;
+    style.fontStyle = FontStyle.Bold;
+    style.normal.textColor = color;
+    return style;
+}
+
+GUIStyle GetCompactButtonStyle(Color baseColor)
+{
+    GUIStyle style = new GUIStyle(GUI.skin.button);
+    style.fontSize = 11;
+    style.fontStyle = FontStyle.Bold;
+    style.normal.textColor = Color.white;
+    style.normal.background = MakeTex(2, 2, baseColor);
+    style.hover.background = MakeTex(2, 2, new Color(baseColor.r * 1.2f, baseColor.g * 1.2f, baseColor.b * 1.2f, 1f));
+    style.alignment = TextAnchor.MiddleCenter;
+    return style;
+}
+
+GUIStyle GetBarBackgroundStyle()
+{
+    GUIStyle style = new GUIStyle(GUI.skin.box);
+    style.normal.background = MakeTex(2, 2, new Color(0.2f, 0.2f, 0.2f, 0.8f));
+    return style;
+}
+
+private Texture2D MakeTex(int width, int height, Color col)
+{
+    Color[] pix = new Color[width * height];
+    for (int i = 0; i < pix.Length; i++)
+        pix[i] = col;
+    Texture2D result = new Texture2D(width, height);
+    result.SetPixels(pix);
+    result.Apply();
+    return result;
+}
+
+public void RefillSourceBeaker()
+{
+    if (sourceBeakerData != null)
     {
-        GUIStyle style = new GUIStyle(GUI.skin.box);
-        style.normal.background = MakeTex(2, 2, new Color(0.05f, 0.08f, 0.12f, 0.95f));
-        return style;
+        sourceBeakerData.volumeML = maxBeakerVolume;
+        systemStatus = "Source Beaker Refilled";
     }
+}
 
-    // Progress bar fill
-    GUIStyle GetBarFillStyle(Color color)
+public void RefillTargetBeaker()
+{
+    if (targetBeakerData != null)
     {
-        GUIStyle style = new GUIStyle(GUI.skin.box);
-        style.normal.background = MakeTex(2, 2, color);
-        return style;
+        targetBeakerData.volumeML = maxBeakerVolume;
+        systemStatus = "Target Beaker Refilled";
     }
+}
 
-    // Chemistry bar border
-    GUIStyle GetChemBarBorderStyle()
+public void ClearTargetBeaker()
+{
+    if (targetBeakerData != null)
     {
-        GUIStyle style = new GUIStyle(GUI.skin.box);
-        style.normal.background = MakeTex(2, 2, new Color(0.3f, 0.7f, 0.9f, 0.6f));
-        return style;
+        targetBeakerData.volumeML = 0f;
+        targetBeakerData.chemicalName = "Empty";
+        systemStatus = "Target Beaker Cleared";
     }
-
-    // Bar glow effect
-    GUIStyle GetBarGlowStyle(Color baseColor)
-    {
-        GUIStyle style = new GUIStyle(GUI.skin.box);
-        Color glowColor = new Color(baseColor.r, baseColor.g, baseColor.b, 0.8f);
-        style.normal.background = MakeTex(2, 2, glowColor);
-        return style;
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    // XR CHEMISTRY LAB - ADVANCED STYLE METHODS
-    // ═══════════════════════════════════════════════════════════
-
-    // XR Section Header with advanced styling
-    void DrawXRSectionHeader(float x, float y, float width, string text)
-    {
-        // Draw background bar with gradient
-        GUI.Box(new Rect(x - 7, y, width + 14, 26), "", GetXRHeaderBgStyle());
-
-        GUIStyle headerStyle = new GUIStyle(GUI.skin.label);
-        headerStyle.fontSize = 15;
-        headerStyle.fontStyle = FontStyle.Bold;
-        headerStyle.normal.textColor = new Color(0.9f, 1f, 1f);
-        headerStyle.alignment = TextAnchor.MiddleLeft;
-
-        // Draw glow line at bottom
-        GUI.Box(new Rect(x, y + 24, width, 2), "", MakeGlowLineStyle());
-        GUI.Label(new Rect(x, y + 3, width, 20), text, headerStyle);
-    }
-
-    GUIStyle GetXRHeaderBgStyle()
-    {
-        GUIStyle style = new GUIStyle(GUI.skin.box);
-        style.normal.background = MakeTex(2, 2, new Color(0.05f, 0.15f, 0.28f, 0.8f));
-        return style;
-    }
-
-    // XR Data label style
-    GUIStyle GetXRDataStyle(int fontSize, Color color)
-    {
-        GUIStyle style = new GUIStyle(GUI.skin.label);
-        style.fontSize = fontSize;
-        style.fontStyle = FontStyle.Normal;
-        style.normal.textColor = color;
-        style.alignment = TextAnchor.MiddleLeft;
-        return style;
-    }
-
-    // XR Status label (bold with emphasis)
-    GUIStyle GetXRStatusStyle(int fontSize, Color color)
-    {
-        GUIStyle style = new GUIStyle(GUI.skin.label);
-        style.fontSize = fontSize;
-        style.fontStyle = FontStyle.Bold;
-        style.normal.textColor = color;
-        style.alignment = TextAnchor.MiddleLeft;
-        return style;
-    }
-
-    // Control button style (colored buttons)
-    GUIStyle GetControlButtonStyle(Color baseColor)
-    {
-        GUIStyle style = new GUIStyle(GUI.skin.button);
-        style.fontSize = 14;
-        style.fontStyle = FontStyle.Bold;
-        style.normal.textColor = Color.white;
-        style.normal.background = MakeTex(2, 2, new Color(baseColor.r, baseColor.g, baseColor.b, 0.85f));
-        style.hover.background = MakeTex(2, 2, new Color(baseColor.r * 1.2f, baseColor.g * 1.2f, baseColor.b * 1.2f, 0.95f));
-        style.active.background = MakeTex(2, 2, new Color(baseColor.r * 0.8f, baseColor.g * 0.8f, baseColor.b * 0.8f, 0.95f));
-        style.alignment = TextAnchor.MiddleCenter;
-        return style;
-    }
-
-    // XR Bar border (enhanced)
-    GUIStyle GetXRBarBorderStyle()
-    {
-        GUIStyle style = new GUIStyle(GUI.skin.box);
-        style.normal.background = MakeTex(2, 2, new Color(0.4f, 0.8f, 1f, 0.7f));
-        return style;
-    }
-
-    // Bar shadow effect
-    GUIStyle GetBarShadowStyle()
-    {
-        GUIStyle style = new GUIStyle(GUI.skin.box);
-        style.normal.background = MakeTex(2, 2, new Color(0f, 0f, 0f, 0.3f));
-        return style;
-    }
+}
 }

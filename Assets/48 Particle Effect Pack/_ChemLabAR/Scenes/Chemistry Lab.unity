@@ -296,6 +296,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8824635107941877501, guid: d329948d72609b64aa2c74f06f1a9a22, type: 3}
+      propertyPath: arCameraManager
+      value: 
+      objectReference: {fileID: 1553042662}
+    - target: {fileID: 8824635107941877501, guid: d329948d72609b64aa2c74f06f1a9a22, type: 3}
+      propertyPath: arCameraBackground
+      value: 
+      objectReference: {fileID: 1553042661}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -434,6 +442,67 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 9150597809499253185, guid: 39e20c3c5c68da0408b746e98d3752c1, type: 3}
   m_PrefabInstance: {fileID: 2086744450}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &1103895162
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3245271478986975157, guid: b288f23c252d323479690b04ddd2d3cb, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3245271478986975157, guid: b288f23c252d323479690b04ddd2d3cb, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3245271478986975157, guid: b288f23c252d323479690b04ddd2d3cb, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3245271478986975157, guid: b288f23c252d323479690b04ddd2d3cb, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3245271478986975157, guid: b288f23c252d323479690b04ddd2d3cb, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3245271478986975157, guid: b288f23c252d323479690b04ddd2d3cb, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3245271478986975157, guid: b288f23c252d323479690b04ddd2d3cb, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3245271478986975157, guid: b288f23c252d323479690b04ddd2d3cb, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3245271478986975157, guid: b288f23c252d323479690b04ddd2d3cb, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3245271478986975157, guid: b288f23c252d323479690b04ddd2d3cb, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3245271478986975159, guid: b288f23c252d323479690b04ddd2d3cb, type: 3}
+      propertyPath: m_Name
+      value: BoundingBoxOverlapCheck
+      objectReference: {fileID: 0}
+    - target: {fileID: 3245271478986975159, guid: b288f23c252d323479690b04ddd2d3cb, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: b288f23c252d323479690b04ddd2d3cb, type: 3}
 --- !u!1 &1129336314 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6021017560896167318, guid: 990d371be26f6ed4780d47abfc127dea, type: 3}
@@ -457,11 +526,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8864724446159602783, guid: 7a719c7e31770b344b958768efd74165, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.07
+      value: 0.699
       objectReference: {fileID: 0}
     - target: {fileID: 8864724446159602783, guid: 7a719c7e31770b344b958768efd74165, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 6.6410003
+      value: 10.26
       objectReference: {fileID: 0}
     - target: {fileID: 8864724446159602783, guid: 7a719c7e31770b344b958768efd74165, type: 3}
       propertyPath: m_LocalRotation.w
@@ -544,7 +613,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 5b65ef45b5e0d7c4aa694be881009bbc, type: 3}
+  m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 5b65ef45b5e0d7c4aa694be881009bbc, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
@@ -809,7 +878,6 @@ MonoBehaviour:
   m_ScreenCoordScaleBias: {x: 0, y: 0, z: 0, w: 0}
   m_RequiresDepthTexture: 0
   m_RequiresColorTexture: 0
-  m_Version: 2
   m_TaaSettings:
     m_Quality: 3
     m_FrameInfluence: 0.1
@@ -817,6 +885,7 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
+  m_Version: 2
 --- !u!114 &1553042660
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1120,17 +1189,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Version: 3
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
-  m_LightLayerMask: 1
-  m_RenderingLayers: 1
   m_CustomShadowLayers: 0
-  m_ShadowLayerMask: 1
-  m_ShadowRenderingLayers: 1
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 0
+  m_RenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_ShadowRenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_Version: 4
+  m_LightLayerMask: 1
+  m_ShadowLayerMask: 1
+  m_RenderingLayers: 1
+  m_ShadowRenderingLayers: 1
 --- !u!1 &1781668643 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1404493017982054885, guid: 7a719c7e31770b344b958768efd74165, type: 3}
@@ -1248,10 +1323,10 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2061782731}
-  serializedVersion: 4
+  serializedVersion: 5
   m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -1446,3 +1521,4 @@ SceneRoots:
   - {fileID: 1014366560690529362}
   - {fileID: 1152647733}
   - {fileID: 1451651610}
+  - {fileID: 1103895162}
