@@ -1696,6 +1696,7 @@ MonoBehaviour:
   pourSound: {fileID: 0}
   refillSound: {fileID: 0}
   reactionSound: {fileID: 0}
+  grabGraceDuration: 0.25
   showDebugVisuals: 1
   enableSafetyBounds: 1
   minBounds: {x: -5, y: -3, z: 5}
@@ -2347,6 +2348,7 @@ MonoBehaviour:
   pourSound: {fileID: 8300000, guid: 5b65ef45b5e0d7c4aa694be881009bbc, type: 3}
   refillSound: {fileID: 8300000, guid: 51846f4834bf34441b0e08458e6e733d, type: 3}
   reactionSound: {fileID: 8300000, guid: 51846f4834bf34441b0e08458e6e733d, type: 3}
+  grabGraceDuration: 0.25
   showDebugVisuals: 1
   enableSafetyBounds: 1
   minBounds: {x: -5, y: -3, z: 5}
@@ -4688,15 +4690,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8505032083176376874, guid: 6d0536f38501def41a310e2063a2f6d2, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.88
+      value: 2.65
       objectReference: {fileID: 0}
     - target: {fileID: 8505032083176376874, guid: 6d0536f38501def41a310e2063a2f6d2, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.375
+      value: 2.63
       objectReference: {fileID: 0}
     - target: {fileID: 8505032083176376874, guid: 6d0536f38501def41a310e2063a2f6d2, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 6.82
+      value: 5.6
       objectReference: {fileID: 0}
     - target: {fileID: 8505032083176376874, guid: 6d0536f38501def41a310e2063a2f6d2, type: 3}
       propertyPath: m_LocalRotation.w
@@ -7370,15 +7372,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2036231189720341585, guid: 5347b5590c70b23479250ec315066f81, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.62
+      value: 0.88
       objectReference: {fileID: 0}
     - target: {fileID: 2036231189720341585, guid: 5347b5590c70b23479250ec315066f81, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.6
+      value: 3.62
       objectReference: {fileID: 0}
     - target: {fileID: 2036231189720341585, guid: 5347b5590c70b23479250ec315066f81, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 6.8
+      value: 5.45
       objectReference: {fileID: 0}
     - target: {fileID: 2036231189720341585, guid: 5347b5590c70b23479250ec315066f81, type: 3}
       propertyPath: m_LocalRotation.w
