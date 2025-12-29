@@ -82,7 +82,7 @@
 - **File**: WaterAttachToBeaker.cs (Lines 355-360)
 - **What**: Added NaN/Infinity checking
 - **Impact**: Prevents beaker from freezing
-- **Details**: [CODE_CHANGES_VISUAL_GUIDE.md](CODE_CHANGES_VISUAL_GUIDE.md#fix-4-hand-position-validation)
+- **Details**: [CODE_CHANGES_VISUAL_GUIDE.md](CODE_CHANGES_VISUAL_GUIDE.md#fix-4-hand-position-validation
 
 ### 5️⃣ Water Particle World Space Sync
 - **File**: WaterAttachToBeaker.cs (Lines 595-620)
