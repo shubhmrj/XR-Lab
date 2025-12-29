@@ -1696,6 +1696,7 @@ MonoBehaviour:
   pourSound: {fileID: 0}
   refillSound: {fileID: 0}
   reactionSound: {fileID: 0}
+  grabGraceDuration: 0.25
   showDebugVisuals: 1
   enableSafetyBounds: 1
   minBounds: {x: -5, y: -3, z: 5}
@@ -2347,6 +2348,7 @@ MonoBehaviour:
   pourSound: {fileID: 8300000, guid: 5b65ef45b5e0d7c4aa694be881009bbc, type: 3}
   refillSound: {fileID: 8300000, guid: 51846f4834bf34441b0e08458e6e733d, type: 3}
   reactionSound: {fileID: 8300000, guid: 51846f4834bf34441b0e08458e6e733d, type: 3}
+  grabGraceDuration: 0.25
   showDebugVisuals: 1
   enableSafetyBounds: 1
   minBounds: {x: -5, y: -3, z: 5}

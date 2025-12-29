@@ -8,7 +8,7 @@ public class WaterAttachToBeaker : MonoBehaviour
     [SerializeField] private GameObject sourceBeaker; // Fixed beaker (source)
     [SerializeField] private GameObject targetBeaker; // Movable beaker (target)
     [SerializeField] private GameObject waterParticlesPrefab;
-    [SerializeField] private float grabDetectionRadius = 5.0f; // Increased for bigger beakers
+    [SerializeField] private float grabDetectionRadius = 7.5f; // INCREASED: Better grab detection from further away
     
     [Header("Pour Points - Assign These in Unity Inspector")]
     [SerializeField] public Transform sourcePourPoint; // ASSIGN THIS in Unity Inspector
@@ -29,7 +29,7 @@ public class WaterAttachToBeaker : MonoBehaviour
     [SerializeField] private float tiltSmoothSpeed = 20f; // Faster tilt response
     [SerializeField] private float maxTiltAngle = 60f;
     [SerializeField] private Vector3 handPositionOffset = new Vector3(0, 0f, 8f);
-    [SerializeField] private float coordinateScale = 4f;
+    [SerializeField] private float coordinateScale = 10f;  // INCREASED: Better hand position mapping (was 4f)
     [SerializeField] private bool isLandscapeMode = true;
 
     [Header("Control Mode")]
@@ -304,20 +304,29 @@ public class WaterAttachToBeaker : MonoBehaviour
         // ONLY TARGET BEAKER CAN BE GRABBED - SOURCE IS ALWAYS FIXED
         if (targetBeakerData?.beakerObject != null && !targetBeakerData.isFixed)
         {
-            float distance = Vector3.Distance(targetBeakerData.beakerObject.transform.position, handPosition);
+            Vector3 beakerPos = targetBeakerData.beakerObject.transform.position;
+            float distance = Vector3.Distance(beakerPos, handPosition);
+            
+            if (showDebugVisuals && Time.frameCount % 30 == 0)
+            {
+                Debug.Log($"GRAB_CHECK: Hand@{handPosition}, Beaker@{beakerPos}, Dist={distance:F2}, Radius={grabDetectionRadius}");
+            }
+            
             if (distance <= grabDetectionRadius)
             {
-                if (showDebugVisuals) Debug.Log($"GRAB SUCCESS: Target beaker is available and movable!");
+                if (showDebugVisuals) Debug.Log($"✓ GRAB_SUCCESS: {targetBeakerData.beakerObject.name} (dist: {distance:F2}m)");
                 return targetBeakerData;
             }
             else
             {
-                if (showDebugVisuals) Debug.Log($"GRAB FAILED: Hand too far from target beaker (distance {distance:F2})");
+                if (showDebugVisuals && Time.frameCount % 60 == 0) 
+                    Debug.LogWarning($"✗ GRAB_OUT_OF_REACH: dist={distance:F2}m vs threshold={grabDetectionRadius}m");
             }
         }
         else
         {
-            if (showDebugVisuals) Debug.Log("GRAB FAILED: No target beaker available or target beaker is fixed");
+            if (showDebugVisuals && Time.frameCount % 60 == 0) 
+                Debug.LogWarning("✗ GRAB_FAILED: Target beaker missing or marked as FIXED");
         }
 
         // NEVER return source beaker - it should always be fixed
@@ -332,19 +341,26 @@ public class WaterAttachToBeaker : MonoBehaviour
             if (currentlyGrabbedBeaker != null)
             {
                 currentlyGrabbedBeaker.isGrabbed = true;
-                systemStatus = $"Grabbed: {currentlyGrabbedBeaker.beakerObject.name}";
-                 if (showDebugVisuals) Debug.Log($"GRAB SUCCESS: {currentlyGrabbedBeaker.beakerObject.name}");
+                systemStatus = $"GRABBED: {currentlyGrabbedBeaker.beakerObject.name}";
+                if (showDebugVisuals) Debug.Log($">>> GRAB_ACQUIRED: {currentlyGrabbedBeaker.beakerObject.name} <<<");
             }
             else
             {
-                systemStatus = "No movable target beaker available to grab";
-                 if (showDebugVisuals) Debug.Log($"GRAB FAILED: No movable target beaker found (target missing or fixed)");
+                systemStatus = "GRAB FAILED - Check hand position and beaker proximity";
+                if (showDebugVisuals) Debug.LogWarning($">>> GRAB_FAILED: Cannot reach target beaker <<<");
             }
         }
 
         // Move the grabbed beaker (only target beaker can be moved)
         if (currentlyGrabbedBeaker != null && !currentlyGrabbedBeaker.isFixed)
         {
+            // Validate hand position is not NaN or Infinity
+            if (float.IsNaN(handPosition.x) || float.IsNaN(handPosition.y) || float.IsNaN(handPosition.z))
+            {
+                if (showDebugVisuals) Debug.LogError("!!! INVALID_HAND: NaN detected! Using last position !!!");
+                handPosition = lastHandPosition;
+            }
+            
             // Follow hand in X/Y, keep current Z so depth (apparent size) stays stable
             Vector3 targetPosition = new Vector3(
                 handPosition.x,
@@ -367,18 +383,27 @@ public class WaterAttachToBeaker : MonoBehaviour
             currentlyGrabbedBeaker.beakerObject.transform.rotation = Quaternion.Lerp(
                 currentlyGrabbedBeaker.beakerObject.transform.rotation,
                 currentlyGrabbedBeaker.initialRotation,
-                Time.deltaTime * 5f
+                Time.deltaTime * 8f
             );
             
             // Force scale after movement
             currentlyGrabbedBeaker.beakerObject.transform.localScale = FIXED_BEAKER_SCALE;
             
-            // record last hand position/time so we can survive short detection flicker
+            // Record last hand position/time so we can survive short detection flicker
             lastHandPosition = handPosition;
             lastHandTime = Time.time;
 
             CheckBeakerToBeakerPouring();
-            if (showDebugVisuals) Debug.Log($"MOVING BEAKER: {currentlyGrabbedBeaker.beakerObject.name} to {targetPosition}");
+            
+            if (showDebugVisuals && Time.frameCount % 15 == 0) 
+            {
+                Debug.Log($">> MOVING: {currentlyGrabbedBeaker.beakerObject.name} | Pos={targetPosition}");
+            }
+        }
+        else if (currentlyGrabbedBeaker != null && currentlyGrabbedBeaker.isFixed)
+        {
+            if (showDebugVisuals) Debug.LogError("!!! ERROR: Grabbed beaker is FIXED! Releasing !!!");
+            currentlyGrabbedBeaker = null;
         }
     }
 
@@ -558,13 +583,23 @@ void UpdateBeakerPouring(ChemistryBeaker beakerData)
     Vector3 beakerUp = beakerData.beakerObject.transform.up;
     float tiltAngle = Vector3.Angle(beakerUp, Vector3.up);
     
+    // DEBUG: Log pouring state for source beaker
+    if (showDebugVisuals && beakerData == sourceBeakerData && Time.frameCount % 30 == 0)
+    {
+        Debug.Log($"SOURCE_TILT: Angle={tiltAngle:F1}° | Threshold={pouringThresholdAngle:F1}° | Volume={beakerData.volumeML:F0}mL | Pouring={beakerData.waterEffect.isPlaying}");
+    }
+    
     // FIXED: Check if beaker has liquid AND is tilted enough to pour
     if (tiltAngle > pouringThresholdAngle && beakerData.volumeML > 0)
     {
         // Use the assigned pour point from Inspector (no need to calculate position)
         if (beakerData.pourPoint != null && beakerData.waterEffectObj != null)
         {
-            // If the particle object is parented to the pourPoint we only need to zero local transform
+            // CRITICAL FIX: Keep particles aligned with pour point in world space
+            Vector3 pourWorldPos = beakerData.pourPoint.position;
+            Quaternion pourWorldRot = beakerData.pourPoint.rotation;
+            
+            // If the particle object is parented to the pourPoint, use local coordinates
             if (beakerData.waterEffectObj.transform.parent == beakerData.pourPoint)
             {
                 beakerData.waterEffectObj.transform.localPosition = Vector3.zero;
@@ -572,12 +607,19 @@ void UpdateBeakerPouring(ChemistryBeaker beakerData)
             }
             else
             {
-                // Fallback: set world position/rotation to match pour point
-                beakerData.waterEffectObj.transform.position = beakerData.pourPoint.position;
-                beakerData.waterEffectObj.transform.rotation = beakerData.pourPoint.rotation;
+                // Fallback: set world position/rotation to match pour point exactly
+                beakerData.waterEffectObj.transform.position = pourWorldPos;
+                beakerData.waterEffectObj.transform.rotation = pourWorldRot;
             }
+            
+            // Additional: Adjust particle emission to follow pour direction (downward)
+            var particleMain = beakerData.waterEffect.main;
+            particleMain.startRotation = new ParticleSystem.MinMaxCurve(0);
 
-            if (showDebugVisuals) Debug.Log($"POURING: Using pour point at {beakerData.pourPoint.position} for {beakerData.beakerObject.name}");
+            if (showDebugVisuals && Time.frameCount % 60 == 0) 
+            {
+                Debug.Log($"POUR_POS: {beakerData.beakerObject.name} | Point={pourWorldPos} | Tilt={tiltAngle:F1}°");
+            }
         }
         
         float pourRateMultiplier = Mathf.Clamp01((tiltAngle - pouringThresholdAngle) / (90f - pouringThresholdAngle));
@@ -684,9 +726,16 @@ Vector3 CalculateHandPosition(BoundingBox boundingBox)
     
     if (isLandscapeMode)
     {
-        float normalizedX = (centerY - 0.5f) * coordinateScale;
-        float normalizedY = (0.5f - centerX) * coordinateScale;
-        return new Vector3(normalizedX, normalizedY, 0) + handPositionOffset;
+        // FIXED COORDINATE MAPPING: Direct X-Y mapping (was swapped before)
+        float normalizedX = (centerX - 0.5f) * coordinateScale;  // Horizontal movement
+        float normalizedY = (0.5f - centerY) * coordinateScale;  // Vertical movement (inverted Y)
+        Vector3 handPos = new Vector3(normalizedX, normalizedY, 0) + handPositionOffset;
+        
+        if (showDebugVisuals && Time.frameCount % 30 == 0)
+        {
+            Debug.Log($"HAND: BBox=({centerX:F3},{centerY:F3}) → Norm=({normalizedX:F3},{normalizedY:F3}) → World={handPos}");
+        }
+        return handPos;
     }
     return new Vector3(centerX, centerY, 0);
 }
