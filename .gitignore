@@ -134,3 +134,7 @@ crashlytics-build.properties
 .DS_Store*
 Thumbs.db
 Desktop.ini
+*.idea
+*.Plastic
+*.vscode
+*.utmp
