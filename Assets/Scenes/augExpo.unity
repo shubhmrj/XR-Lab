@@ -1957,11 +1957,6 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!1 &744864435 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 9028627854349766800, guid: 6d0536f38501def41a310e2063a2f6d2, type: 3}
-  m_PrefabInstance: {fileID: 1493185051}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &787440826
 GameObject:
   m_ObjectHideFlags: 0
@@ -2325,11 +2320,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sourceBeaker: {fileID: 1944599700}
-  targetBeaker: {fileID: 744864435}
+  targetBeaker: {fileID: 1514937484}
   waterParticlesPrefab: {fileID: 1476004466}
   grabDetectionRadius: 10
   sourcePourPoint: {fileID: 620645010}
-  targetPourPoint: {fileID: 620645010}
+  targetPourPoint: {fileID: 0}
   maxBeakerVolume: 250
   pourRate: 250
   pouringDistance: 2
@@ -4738,7 +4733,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9028627854349766800, guid: 6d0536f38501def41a310e2063a2f6d2, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -5062,6 +5057,11 @@ Transform:
   - {fileID: 277263601}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1514937484 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8482147909517439867, guid: 39e20c3c5c68da0408b746e98d3752c1, type: 3}
+  m_PrefabInstance: {fileID: 854584609}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1519388437
 GameObject:
   m_ObjectHideFlags: 0
