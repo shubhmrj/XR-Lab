@@ -135,6 +135,7 @@ crashlytics-build.properties
 Thumbs.db
 Desktop.ini
 *.idea
-*.Plastic
+*.plastic
 *.vscode
 *.utmp
+*.gitignore
