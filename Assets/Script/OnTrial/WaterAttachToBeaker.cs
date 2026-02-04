@@ -117,7 +117,48 @@ public class WaterAttachToBeaker : MonoBehaviour
             ManoMotionManager.Instance.ShouldCalculateGestures(true);
         }
         InitializeBeakers();
-        Debug.Log("Chemistry Lab initialized with Source and Target beakers");
+        
+        // PRODUCTION FIX: Validate all beaker components are properly initialized
+        ValidateBeakerSetup();
+        
+        Debug.Log("[INITIALIZATION] Chemistry Lab initialized with Source and Target beakers");
+    }
+    
+    void ValidateBeakerSetup()
+    {
+        // Ensure both beakers are visible and active
+        if (sourceBeakerData?.beakerObject != null)
+        {
+            sourceBeakerData.beakerObject.SetActive(true);
+            if (sourceBeakerData.beakerObject.GetComponent<Collider>() == null)
+            {
+                sourceBeakerData.beakerObject.AddComponent<SphereCollider>();
+                Debug.LogWarning("[VALIDATION] Added missing Collider to Source Beaker");
+            }
+            Debug.Log("[VALIDATION] Source Beaker: READY");
+        }
+        
+        if (targetBeakerData?.beakerObject != null)
+        {
+            targetBeakerData.beakerObject.SetActive(true);
+            if (targetBeakerData.beakerObject.GetComponent<Collider>() == null)
+            {
+                targetBeakerData.beakerObject.AddComponent<SphereCollider>();
+                Debug.LogWarning("[VALIDATION] Added missing Collider to Target Beaker");
+            }
+            Debug.Log("[VALIDATION] Target Beaker: READY");
+        }
+        
+        // Validate audio setup
+        if (audioSource == null)
+        {
+            audioSource = GetComponent<AudioSource>();
+            if (audioSource == null)
+            {
+                Debug.LogWarning("[PRODUCTION WARNING] No AudioSource found! Creating one...");
+                audioSource = gameObject.AddComponent<AudioSource>();
+            }
+        }
     }
 
     void InitializeBeakers()
@@ -182,22 +223,35 @@ public class WaterAttachToBeaker : MonoBehaviour
             Debug.LogWarning($"Pour point not assigned in Inspector for {beakerObj.name}! Using auto-created pour point.");
         }
 
-        // Create water particles and parent to pour point so they follow the beaker/pour transform
+        // FIXED: Create water particles WITHOUT parenting to pourPoint to prevent invisibility
+        // Instantiate at world position, NOT as child of pourPoint
         if (waterParticlesPrefab != null && data.pourPoint != null)
         {
-            data.waterEffectObj = Instantiate(waterParticlesPrefab, data.pourPoint.position, data.pourPoint.rotation, data.pourPoint);
+            data.waterEffectObj = Instantiate(waterParticlesPrefab, data.pourPoint.position, data.pourPoint.rotation);
             data.waterEffectObj.name = $"ChemicalEffect_{beakerObj.name}";
-            // ensure local transform is zeroed so prefab aligns with pour point
-            data.waterEffectObj.transform.localPosition = Vector3.zero;
-            data.waterEffectObj.transform.localRotation = Quaternion.identity;
+            data.waterEffectObj.SetActive(true); // Ensure it's visible
+            
             data.waterEffect = data.waterEffectObj.GetComponent<ParticleSystem>();
             if (data.waterEffect != null)
             {
                 var main = data.waterEffect.main;
                 main.startColor = data.liquidColor;
                 data.waterEffect.Stop();
+                if (showDebugVisuals) Debug.Log($"[SUCCESS] Created water effect for {beakerObj.name}");
+            }
+            else
+            {
+                Debug.LogError($"[PRODUCTION ERROR] ParticleSystem not found on waterParticlesPrefab for {beakerObj.name}!");
             }
         }
+        
+        // Ensure beaker has collider for grab detection
+        if (beakerObj.GetComponent<Collider>() == null)
+        {
+            beakerObj.AddComponent<SphereCollider>();
+            if (showDebugVisuals) Debug.LogWarning($"[PRODUCTION FIX] Added missing Collider to {beakerObj.name}");
+        }
+        
         return data;
     }
 
@@ -290,10 +344,11 @@ public class WaterAttachToBeaker : MonoBehaviour
             // Debug info to track source beaker behavior
             if (showDebugVisuals && Vector3.Distance(sourceBeakerData.beakerObject.transform.position, sourceBeakerData.initialPosition) > 0.01f)
             {
-                Debug.LogError($"SOURCE BEAKER MOVED! Resetting to {sourceBeakerData.initialPosition}");
+                Debug.LogError($"[PRODUCTION ERROR] SOURCE BEAKER MOVED! Resetting to {sourceBeakerData.initialPosition}");
             }
         }
-        if (targetBeakerData?.beakerObject != null)
+        // FIXED: Only enforce scale for target beaker when NOT being grabbed
+        if (targetBeakerData?.beakerObject != null && !targetBeakerData.isGrabbed)
         {
             targetBeakerData.beakerObject.transform.localScale = FIXED_BEAKER_SCALE;
         }
@@ -302,31 +357,37 @@ public class WaterAttachToBeaker : MonoBehaviour
     ChemistryBeaker GetNearestGrabbableBeaker(Vector3 handPosition)
     {
         // ONLY TARGET BEAKER CAN BE GRABBED - SOURCE IS ALWAYS FIXED
-        if (targetBeakerData?.beakerObject != null && !targetBeakerData.isFixed)
+        if (targetBeakerData?.beakerObject == null || targetBeakerData.isFixed)
         {
-            Vector3 beakerPos = targetBeakerData.beakerObject.transform.position;
-            float distance = Vector3.Distance(beakerPos, handPosition);
-            
-            if (showDebugVisuals && Time.frameCount % 30 == 0)
-            {
-                Debug.Log($"GRAB_CHECK: Hand@{handPosition}, Beaker@{beakerPos}, Dist={distance:F2}, Radius={grabDetectionRadius}");
-            }
-            
-            if (distance <= grabDetectionRadius)
-            {
-                if (showDebugVisuals) Debug.Log($"✓ GRAB_SUCCESS: {targetBeakerData.beakerObject.name} (dist: {distance:F2}m)");
-                return targetBeakerData;
-            }
-            else
-            {
-                if (showDebugVisuals && Time.frameCount % 60 == 0) 
-                    Debug.LogWarning($"✗ GRAB_OUT_OF_REACH: dist={distance:F2}m vs threshold={grabDetectionRadius}m");
-            }
+            if (showDebugVisuals && Time.frameCount % 60 == 0) 
+                Debug.LogWarning($"[GRAB_CHECK] Target beaker missing or marked as FIXED. Beaker: {targetBeakerData?.beakerObject?.name ?? "NULL"}, IsFixed: {targetBeakerData?.isFixed}");
+            return null;
+        }
+        
+        // FIXED: Better grab detection with visual and object checks
+        if (!targetBeakerData.beakerObject.activeInHierarchy)
+        {
+            if (showDebugVisuals) Debug.LogError($"[PRODUCTION ERROR] Target beaker is INACTIVE in hierarchy! Making it active.");
+            targetBeakerData.beakerObject.SetActive(true);
+        }
+        
+        Vector3 beakerPos = targetBeakerData.beakerObject.transform.position;
+        float distance = Vector3.Distance(beakerPos, handPosition);
+        
+        if (showDebugVisuals && Time.frameCount % 20 == 0)
+        {
+            Debug.Log($"[GRAB_CHECK] Hand@{handPosition.ToString("F2")}, Beaker@{beakerPos.ToString("F2")}, Dist={distance:F3}, Threshold={grabDetectionRadius}");
+        }
+        
+        if (distance <= grabDetectionRadius)
+        {
+            if (showDebugVisuals) Debug.Log($"[GRAB_SUCCESS] {targetBeakerData.beakerObject.name} detected within grab range (dist: {distance:F3}m)");
+            return targetBeakerData;
         }
         else
         {
             if (showDebugVisuals && Time.frameCount % 60 == 0) 
-                Debug.LogWarning("✗ GRAB_FAILED: Target beaker missing or marked as FIXED");
+                Debug.Log($"[GRAB_OUT_OF_RANGE] dist={distance:F3}m exceeds threshold={grabDetectionRadius}m");
         }
 
         // NEVER return source beaker - it should always be fixed
@@ -341,13 +402,15 @@ public class WaterAttachToBeaker : MonoBehaviour
             if (currentlyGrabbedBeaker != null)
             {
                 currentlyGrabbedBeaker.isGrabbed = true;
-                systemStatus = $"GRABBED: {currentlyGrabbedBeaker.beakerObject.name}";
-                if (showDebugVisuals) Debug.Log($">>> GRAB_ACQUIRED: {currentlyGrabbedBeaker.beakerObject.name} <<<");
+                // FIXED: Ensure grabbed beaker remains visible and active
+                currentlyGrabbedBeaker.beakerObject.SetActive(true);
+                systemStatus = $"GRABBED: {currentlyGrabbedBeaker.beakerObject.name} - Ready to move";
+                if (showDebugVisuals) Debug.Log($"[GRAB_ACTIVATED] {currentlyGrabbedBeaker.beakerObject.name} is now grabbable and visible");
             }
             else
             {
-                systemStatus = "GRAB FAILED - Check hand position and beaker proximity";
-                if (showDebugVisuals) Debug.LogWarning($">>> GRAB_FAILED: Cannot reach target beaker <<<");
+                if (showDebugVisuals) Debug.Log($"[GRAB_FAILED] No beaker within grab distance (threshold: {grabDetectionRadius}m)");
+                systemStatus = "Grab failed - Move hand closer to target beaker";
             }
         }
 
@@ -357,8 +420,15 @@ public class WaterAttachToBeaker : MonoBehaviour
             // Validate hand position is not NaN or Infinity
             if (float.IsNaN(handPosition.x) || float.IsNaN(handPosition.y) || float.IsNaN(handPosition.z))
             {
-                if (showDebugVisuals) Debug.LogError("!!! INVALID_HAND: NaN detected! Using last position !!!");
+                if (showDebugVisuals) Debug.LogError("[PRODUCTION ERROR] Invalid hand position (NaN detected). Using last position.");
                 handPosition = lastHandPosition;
+            }
+            
+            // FIXED: Ensure beaker stays visible and active during grab
+            if (!currentlyGrabbedBeaker.beakerObject.activeInHierarchy)
+            {
+                currentlyGrabbedBeaker.beakerObject.SetActive(true);
+                if (showDebugVisuals) Debug.LogWarning($"[PRODUCTION FIX] Reactivated {currentlyGrabbedBeaker.beakerObject.name} during grab movement");
             }
             
             // Follow hand in X/Y, keep current Z so depth (apparent size) stays stable
@@ -388,6 +458,19 @@ public class WaterAttachToBeaker : MonoBehaviour
             
             // Force scale after movement
             currentlyGrabbedBeaker.beakerObject.transform.localScale = FIXED_BEAKER_SCALE;
+            
+            if (showDebugVisuals && Time.frameCount % 30 == 0) 
+            {
+                Debug.Log($"[GRAB_MOVING] {currentlyGrabbedBeaker.beakerObject.name} | Pos={currentlyGrabbedBeaker.beakerObject.transform.position.ToString("F2")}");
+            }
+        }
+        else if (currentlyGrabbedBeaker != null && currentlyGrabbedBeaker.isFixed)
+        {
+            if (showDebugVisuals) Debug.LogError($"[PRODUCTION ERROR] Attempted to grab FIXED beaker {currentlyGrabbedBeaker.beakerObject.name}! Releasing.");
+            currentlyGrabbedBeaker.isGrabbed = false;
+            currentlyGrabbedBeaker = null;
+            systemStatus = "Cannot grab fixed beaker - target beaker only";
+        }
             
             // Record last hand position/time so we can survive short detection flicker
             lastHandPosition = handPosition;
@@ -501,8 +584,8 @@ public class WaterAttachToBeaker : MonoBehaviour
         // Pinch should ONLY refill the source beaker (main working beaker) - NO DISTANCE CHECK
         if (sourceBeakerData == null)
         {
-            Debug.Log($"REFILL FAILED: Source beaker not available");
-            systemStatus = "Source beaker not available for refilling";
+            if (showDebugVisuals) Debug.LogError($"[PRODUCTION ERROR] REFILL FAILED: Source beaker not available");
+            systemStatus = "REFILL ERROR: Source beaker not available";
             return;
         }
 
@@ -519,14 +602,31 @@ public class WaterAttachToBeaker : MonoBehaviour
             beakerToRefill.liquidColor = new Color(1f, 0.7f, 0.2f, 0.7f); // Orange for acid
         }
         
-        // Play refill sound
-        if (audioSource != null && refillSound != null && !audioSource.isPlaying)
+        // FIXED: Improved audio playback - proper error handling and volume control
+        if (audioSource != null && refillSound != null)
         {
-            audioSource.PlayOneShot(refillSound);
+            try
+            {
+                // Use PlayOneShot for non-overlapping audio, which handles concurrent plays
+                audioSource.PlayOneShot(refillSound, 0.8f); // 0.8 volume for clarity
+                if (showDebugVisuals) Debug.Log($"[AUDIO_SUCCESS] Refill sound played at volume 0.8");
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"[PRODUCTION ERROR] Audio playback failed: {ex.Message}");
+            }
+        }
+        else
+        {
+            if (showDebugVisuals)
+            {
+                if (audioSource == null) Debug.LogWarning($"[PRODUCTION WARNING] AudioSource component not assigned in Inspector");
+                if (refillSound == null) Debug.LogWarning($"[PRODUCTION WARNING] Refill sound clip not assigned in Inspector");
+            }
         }
         
         systemStatus = $"Refilling {beakerName}: {beakerToRefill.volumeML:F0}mL / {maxBeakerVolume:F0}mL";
-        Debug.Log($"REFILL SUCCESS: {beakerName} beaker now has {beakerToRefill.volumeML:F0}mL (was {currentVolume:F0}mL)");
+        if (showDebugVisuals) Debug.Log($"[REFILL_SUCCESS] {beakerName} beaker now has {beakerToRefill.volumeML:F0}mL (was {currentVolume:F0}mL)");
     }
 
     void ReleaseAllBeakers()
@@ -534,11 +634,17 @@ public class WaterAttachToBeaker : MonoBehaviour
         if (currentlyGrabbedBeaker != null)
         {
             currentlyGrabbedBeaker.isGrabbed = false;
+            // FIXED: Ensure beaker remains visible after release
+            if (currentlyGrabbedBeaker.beakerObject != null)
+            {
+                currentlyGrabbedBeaker.beakerObject.SetActive(true);
+                if (showDebugVisuals) Debug.Log($"[GRAB_RELEASED] {currentlyGrabbedBeaker.beakerObject.name} released and remains visible");
+            }
             currentlyGrabbedBeaker = null;
         }
         isPouringBetweenBeakers = false;
         if (currentGesture == ManoGestureContinuous.NO_GESTURE)
-            systemStatus = "Chemistry Lab Ready";
+            systemStatus = "Chemistry Lab Ready - Show hand to interact";
     }
 
     // Safety bounds
