@@ -25,16 +25,28 @@ public class WaterAttachToBeaker : MonoBehaviour
     [SerializeField] public Color waterColor = new Color(0.7f, 0.85f, 0.92f, 0.7f);
 
     [Header("Movement Settings")]
-    [SerializeField] private float moveSpeed = 12f; // Increased for better responsiveness
+    [SerializeField] private float moveSpeed = 22f; // Increased for better responsiveness (tuned for snappier grabs)
     [SerializeField] private float tiltSmoothSpeed = 20f; // Faster tilt response
     [SerializeField] private float maxTiltAngle = 60f;
     [SerializeField] private Vector3 handPositionOffset = new Vector3(0, 0f, 8f);
     [SerializeField] private float coordinateScale = 10f;  // INCREASED: Better hand position mapping (was 4f)
     [SerializeField] private bool isLandscapeMode = true;
 
+    [Tooltip("If enabled, the grabbed beaker will follow the hand depth (Z). Disable to keep fixed depth.)")]
+    [SerializeField] private bool followHandDepth = true;
+    [Tooltip("Smoothing speed used when following hand depth to reduce jitter")]
+    [SerializeField] private float depthSmoothSpeed = 8f; // reasonable default (higher = snappier) 
+
+    [Tooltip("Max distance considered a realistic initial offset on grab — larger distances will snap the beaker to the hand to avoid jumps")]
+    [SerializeField] private float maxInitialSnapDistance = 0.7f;
+    [Tooltip("How quickly the beaker snaps to the hand on first grab (higher = faster)")]
+    [SerializeField] private float initialSnapSpeed = 30f;
+
     [Header("Control Mode")]
     [SerializeField] private bool useGestureControls = true; // Allow disabling ManoMotion gating for XR/controller input
     [SerializeField] private bool autoReturnWhenNoGesture = true; // Optional upright snap when gestures disappear
+    [Tooltip("Allow grabbing the target beaker anywhere in the XR scene (no proximity check). Useful for open-world gesture control.")]
+    [SerializeField] private bool grabAnywhere = true;
     
     [Header("Audio Settings")]
     [SerializeField] private AudioSource audioSource;
@@ -50,13 +62,18 @@ public class WaterAttachToBeaker : MonoBehaviour
         public GameObject waterEffectObj;
         public ParticleSystem waterEffect;
         public ParticleSystem splashEffect;
+        // Original parent saved so we can detach during grab and restore on release
+        public Transform originalParent;
         public float volumeML = 500f;
         public Vector3 initialPosition;
         public Quaternion initialRotation;
         public Vector3 lastEmitPosition;
+        public Vector3 grabOffset; // offset between hand and object to avoid jumps on acquire
         public bool isGrabbed = false;
         public bool isFixed = false;
         public Color liquidColor;
+        public Rigidbody rb; // cached Rigidbody if present
+        public bool wasKinematic = false; // original kinematic state
         public string chemicalName = "Water";
         public float concentration = 100f;
         public float pH = 7.0f;
@@ -117,48 +134,7 @@ public class WaterAttachToBeaker : MonoBehaviour
             ManoMotionManager.Instance.ShouldCalculateGestures(true);
         }
         InitializeBeakers();
-        
-        // PRODUCTION FIX: Validate all beaker components are properly initialized
-        ValidateBeakerSetup();
-        
-        Debug.Log("[INITIALIZATION] Chemistry Lab initialized with Source and Target beakers");
-    }
-    
-    void ValidateBeakerSetup()
-    {
-        // Ensure both beakers are visible and active
-        if (sourceBeakerData?.beakerObject != null)
-        {
-            sourceBeakerData.beakerObject.SetActive(true);
-            if (sourceBeakerData.beakerObject.GetComponent<Collider>() == null)
-            {
-                sourceBeakerData.beakerObject.AddComponent<SphereCollider>();
-                Debug.LogWarning("[VALIDATION] Added missing Collider to Source Beaker");
-            }
-            Debug.Log("[VALIDATION] Source Beaker: READY");
-        }
-        
-        if (targetBeakerData?.beakerObject != null)
-        {
-            targetBeakerData.beakerObject.SetActive(true);
-            if (targetBeakerData.beakerObject.GetComponent<Collider>() == null)
-            {
-                targetBeakerData.beakerObject.AddComponent<SphereCollider>();
-                Debug.LogWarning("[VALIDATION] Added missing Collider to Target Beaker");
-            }
-            Debug.Log("[VALIDATION] Target Beaker: READY");
-        }
-        
-        // Validate audio setup
-        if (audioSource == null)
-        {
-            audioSource = GetComponent<AudioSource>();
-            if (audioSource == null)
-            {
-                Debug.LogWarning("[PRODUCTION WARNING] No AudioSource found! Creating one...");
-                audioSource = gameObject.AddComponent<AudioSource>();
-            }
-        }
+        Debug.Log("Chemistry Lab initialized with Source and Target beakers");
     }
 
     void InitializeBeakers()
@@ -197,10 +173,18 @@ public class WaterAttachToBeaker : MonoBehaviour
             initialPosition = beakerObj.transform.position,
             initialRotation = beakerObj.transform.rotation,
             isFixed = isFixed,
-            liquidColor = waterColor
+            liquidColor = waterColor,
+            originalParent = beakerObj.transform.parent
         };
 
         beakerObj.transform.localScale = FIXED_BEAKER_SCALE;
+
+        // Cache Rigidbody (if present) so we can control physics during grabs
+        data.rb = beakerObj.GetComponent<Rigidbody>();
+        if (data.rb != null)
+        {
+            data.wasKinematic = data.rb.isKinematic;
+        }
 
         // Use assigned pour points from Inspector
         if (beakerObj == sourceBeaker && sourcePourPoint != null)
@@ -223,35 +207,24 @@ public class WaterAttachToBeaker : MonoBehaviour
             Debug.LogWarning($"Pour point not assigned in Inspector for {beakerObj.name}! Using auto-created pour point.");
         }
 
-        // FIXED: Create water particles WITHOUT parenting to pourPoint to prevent invisibility
-        // Instantiate at world position, NOT as child of pourPoint
+        // Create water particles and position them at pour point (DO NOT parent to pourPoint — parenting caused culling/visibility issues)
         if (waterParticlesPrefab != null && data.pourPoint != null)
         {
             data.waterEffectObj = Instantiate(waterParticlesPrefab, data.pourPoint.position, data.pourPoint.rotation);
             data.waterEffectObj.name = $"ChemicalEffect_{beakerObj.name}";
-            data.waterEffectObj.SetActive(true); // Ensure it's visible
-            
+            // ensure transform aligns with pour point in world space
+            data.waterEffectObj.transform.position = data.pourPoint.position;
+            data.waterEffectObj.transform.rotation = data.pourPoint.rotation;
+            // ensure it is not parented to avoid scale/visibility inheritance
+            data.waterEffectObj.transform.SetParent(null);
             data.waterEffect = data.waterEffectObj.GetComponent<ParticleSystem>();
             if (data.waterEffect != null)
             {
                 var main = data.waterEffect.main;
                 main.startColor = data.liquidColor;
                 data.waterEffect.Stop();
-                if (showDebugVisuals) Debug.Log($"[SUCCESS] Created water effect for {beakerObj.name}");
-            }
-            else
-            {
-                Debug.LogError($"[PRODUCTION ERROR] ParticleSystem not found on waterParticlesPrefab for {beakerObj.name}!");
             }
         }
-        
-        // Ensure beaker has collider for grab detection
-        if (beakerObj.GetComponent<Collider>() == null)
-        {
-            beakerObj.AddComponent<SphereCollider>();
-            if (showDebugVisuals) Debug.LogWarning($"[PRODUCTION FIX] Added missing Collider to {beakerObj.name}");
-        }
-        
         return data;
     }
 
@@ -282,6 +255,8 @@ public class WaterAttachToBeaker : MonoBehaviour
                     switch (gesture)
                     {
                         case ManoGestureContinuous.OPEN_HAND_GESTURE:
+                            // Open hand releases any grabbed beaker so user can place it and then tilt to pour
+                            ReleaseAllBeakers();
                             HandleTiltGesture(normalizedX);
                             break;
                         case ManoGestureContinuous.OPEN_PINCH_GESTURE:
@@ -344,11 +319,10 @@ public class WaterAttachToBeaker : MonoBehaviour
             // Debug info to track source beaker behavior
             if (showDebugVisuals && Vector3.Distance(sourceBeakerData.beakerObject.transform.position, sourceBeakerData.initialPosition) > 0.01f)
             {
-                Debug.LogError($"[PRODUCTION ERROR] SOURCE BEAKER MOVED! Resetting to {sourceBeakerData.initialPosition}");
+                Debug.LogError($"SOURCE BEAKER MOVED! Resetting to {sourceBeakerData.initialPosition}");
             }
         }
-        // FIXED: Only enforce scale for target beaker when NOT being grabbed
-        if (targetBeakerData?.beakerObject != null && !targetBeakerData.isGrabbed)
+        if (targetBeakerData?.beakerObject != null)
         {
             targetBeakerData.beakerObject.transform.localScale = FIXED_BEAKER_SCALE;
         }
@@ -357,37 +331,38 @@ public class WaterAttachToBeaker : MonoBehaviour
     ChemistryBeaker GetNearestGrabbableBeaker(Vector3 handPosition)
     {
         // ONLY TARGET BEAKER CAN BE GRABBED - SOURCE IS ALWAYS FIXED
-        if (targetBeakerData?.beakerObject == null || targetBeakerData.isFixed)
+        if (targetBeakerData?.beakerObject != null && !targetBeakerData.isFixed)
         {
-            if (showDebugVisuals && Time.frameCount % 60 == 0) 
-                Debug.LogWarning($"[GRAB_CHECK] Target beaker missing or marked as FIXED. Beaker: {targetBeakerData?.beakerObject?.name ?? "NULL"}, IsFixed: {targetBeakerData?.isFixed}");
-            return null;
-        }
-        
-        // FIXED: Better grab detection with visual and object checks
-        if (!targetBeakerData.beakerObject.activeInHierarchy)
-        {
-            if (showDebugVisuals) Debug.LogError($"[PRODUCTION ERROR] Target beaker is INACTIVE in hierarchy! Making it active.");
-            targetBeakerData.beakerObject.SetActive(true);
-        }
-        
-        Vector3 beakerPos = targetBeakerData.beakerObject.transform.position;
-        float distance = Vector3.Distance(beakerPos, handPosition);
-        
-        if (showDebugVisuals && Time.frameCount % 20 == 0)
-        {
-            Debug.Log($"[GRAB_CHECK] Hand@{handPosition.ToString("F2")}, Beaker@{beakerPos.ToString("F2")}, Dist={distance:F3}, Threshold={grabDetectionRadius}");
-        }
-        
-        if (distance <= grabDetectionRadius)
-        {
-            if (showDebugVisuals) Debug.Log($"[GRAB_SUCCESS] {targetBeakerData.beakerObject.name} detected within grab range (dist: {distance:F3}m)");
-            return targetBeakerData;
+            // Global grab mode: ignore distance and return target directly
+            if (grabAnywhere)
+            {
+                if (showDebugVisuals) Debug.Log($"[GRAB_ANYWHERE] {targetBeakerData.beakerObject.name} grabbed (global mode)");
+                return targetBeakerData;
+            }
+
+            Vector3 beakerPos = targetBeakerData.beakerObject.transform.position;
+            float distance = Vector3.Distance(beakerPos, handPosition);
+            
+            if (showDebugVisuals && Time.frameCount % 30 == 0)
+            {
+                Debug.Log($"GRAB_CHECK: Hand@{handPosition}, Beaker@{beakerPos}, Dist={distance:F2}, Radius={grabDetectionRadius}");
+            }
+            
+            if (distance <= grabDetectionRadius)
+            {
+                if (showDebugVisuals) Debug.Log($"✓ GRAB_SUCCESS: {targetBeakerData.beakerObject.name} (dist: {distance:F2}m)");
+                return targetBeakerData;
+            }
+            else
+            {
+                if (showDebugVisuals && Time.frameCount % 60 == 0) 
+                    Debug.LogWarning($"✗ GRAB_OUT_OF_REACH: dist={distance:F2}m vs threshold={grabDetectionRadius}m");
+            }
         }
         else
         {
             if (showDebugVisuals && Time.frameCount % 60 == 0) 
-                Debug.Log($"[GRAB_OUT_OF_RANGE] dist={distance:F3}m exceeds threshold={grabDetectionRadius}m");
+                Debug.LogWarning("✗ GRAB_FAILED: Target beaker missing or marked as FIXED");
         }
 
         // NEVER return source beaker - it should always be fixed
@@ -402,15 +377,73 @@ public class WaterAttachToBeaker : MonoBehaviour
             if (currentlyGrabbedBeaker != null)
             {
                 currentlyGrabbedBeaker.isGrabbed = true;
-                // FIXED: Ensure grabbed beaker remains visible and active
-                currentlyGrabbedBeaker.beakerObject.SetActive(true);
-                systemStatus = $"GRABBED: {currentlyGrabbedBeaker.beakerObject.name} - Ready to move";
-                if (showDebugVisuals) Debug.Log($"[GRAB_ACTIVATED] {currentlyGrabbedBeaker.beakerObject.name} is now grabbable and visible");
+                systemStatus = $"GRABBED: {currentlyGrabbedBeaker.beakerObject.name}";
+
+                // AUTO-RECOVERY: Ensure the beaker GameObject and its renderers/colliders are enabled
+                GameObject bobj = currentlyGrabbedBeaker.beakerObject;
+                bool wasActive = bobj.activeInHierarchy;
+                if (!wasActive) bobj.SetActive(true);
+
+                var renderers = bobj.GetComponentsInChildren<Renderer>(true);
+                foreach (var r in renderers) r.enabled = true;
+
+                var colliders = bobj.GetComponentsInChildren<Collider>(true);
+                foreach (var c in colliders) c.enabled = true;
+
+                // Detach from any parent to avoid parent-based culling or deactivation while grabbed
+                if (currentlyGrabbedBeaker.originalParent != null)
+                {
+                    bobj.transform.SetParent(null, true);
+                    if (showDebugVisuals) Debug.Log($"[GRAB_DIAG] Detached {bobj.name} from parent {currentlyGrabbedBeaker.originalParent.name} while grabbed");
+                }
+
+                // Diagnostic logging to help track invisibility in XR: position, scale, previous parent, camera distance
+                float camDist = Camera.main != null ? Vector3.Distance(Camera.main.transform.position, bobj.transform.position) : -1f;
+                if (showDebugVisuals)
+                {
+                    Debug.Log($">>> GRAB_ACQUIRED: {bobj.name} <<< (wasActive={wasActive}, pos={bobj.transform.position}, scale={bobj.transform.localScale}, previousParent={(currentlyGrabbedBeaker.originalParent!=null?currentlyGrabbedBeaker.originalParent.name:"null")}, camDist={camDist:F2})");
+                    if (renderers.Length == 0) Debug.LogWarning($"[GRAB_DIAG] No Renderer found on {bobj.name} - it may be invisible");
+                }
+
+                // Compute & store offset between beaker and hand to avoid sudden jumps on first-frame grab
+                currentlyGrabbedBeaker.grabOffset = bobj.transform.position - handPosition;
+
+                // If Z offset is large, snap the object Z to the hand immediately and update the offset.
+                if (Mathf.Abs(currentlyGrabbedBeaker.grabOffset.z) > maxInitialSnapDistance)
+                {
+                    Vector3 snapped = bobj.transform.position;
+                    snapped.z = handPosition.z; // align depth with hand to avoid being stuck behind
+                    bobj.transform.position = snapped;
+                    // recompute offset after snapping
+                    currentlyGrabbedBeaker.grabOffset = bobj.transform.position - handPosition;
+                    if (showDebugVisuals) Debug.Log($"[GRAB_SNAP_DEPTH] Snapped Z from offset -> newPos={bobj.transform.position}, newOffset.z={currentlyGrabbedBeaker.grabOffset.z:F2}");
+                }
+                else if (currentlyGrabbedBeaker.grabOffset.magnitude > maxInitialSnapDistance)
+                {
+                    Vector3 targetPos = handPosition + currentlyGrabbedBeaker.grabOffset.normalized * maxInitialSnapDistance;
+                    bobj.transform.position = Vector3.Lerp(bobj.transform.position, targetPos, Mathf.Clamp(Time.deltaTime * initialSnapSpeed, 0f, 1f));
+                    // update offset after the snap attempt so future frames use smaller offset
+                    currentlyGrabbedBeaker.grabOffset = bobj.transform.position - handPosition;
+                    if (showDebugVisuals) Debug.Log($"[GRAB_SNAP] large offset {currentlyGrabbedBeaker.grabOffset.magnitude:F2}m — snapping towards hand (newPos={bobj.transform.position})");
+                }
+
+                // Make Rigidbody kinematic while grabbed so transforms are authoritative
+                if (currentlyGrabbedBeaker.rb != null)
+                {
+                    currentlyGrabbedBeaker.rb.isKinematic = true;
+                    // stop residual physics velocities so the object doesn't fight the hand
+                    ClearRigidbodyVelocities(currentlyGrabbedBeaker.rb);
+                    if (showDebugVisuals) Debug.Log("[GRAB_PHYSICS] Rigidbody found, set isKinematic=true and cleared velocities");
+                }
+
+                // Enforce fixed scale to avoid parent-induced scaling issues
+                bobj.transform.localScale = FIXED_BEAKER_SCALE;
+                if (showDebugVisuals) Debug.Log($"[GRAB_STATE] Forced scale {bobj.name} => {FIXED_BEAKER_SCALE}");
             }
             else
             {
-                if (showDebugVisuals) Debug.Log($"[GRAB_FAILED] No beaker within grab distance (threshold: {grabDetectionRadius}m)");
-                systemStatus = "Grab failed - Move hand closer to target beaker";
+                systemStatus = "GRAB FAILED - Check hand position and beaker proximity";
+                if (showDebugVisuals) Debug.LogWarning($">>> GRAB_FAILED: Cannot reach target beaker <<<");
             }
         }
 
@@ -420,34 +453,43 @@ public class WaterAttachToBeaker : MonoBehaviour
             // Validate hand position is not NaN or Infinity
             if (float.IsNaN(handPosition.x) || float.IsNaN(handPosition.y) || float.IsNaN(handPosition.z))
             {
-                if (showDebugVisuals) Debug.LogError("[PRODUCTION ERROR] Invalid hand position (NaN detected). Using last position.");
+                if (showDebugVisuals) Debug.LogError("!!! INVALID_HAND: NaN detected! Using last position !!!");
                 handPosition = lastHandPosition;
             }
             
-            // FIXED: Ensure beaker stays visible and active during grab
-            if (!currentlyGrabbedBeaker.beakerObject.activeInHierarchy)
+            // Use stored grabOffset so the object follows the hand without sudden leaps
+            Vector3 desiredPos = handPosition + currentlyGrabbedBeaker.grabOffset;
+
+            // Depth handling: apply smoothed Z if followHandDepth is enabled
+            if (followHandDepth)
             {
-                currentlyGrabbedBeaker.beakerObject.SetActive(true);
-                if (showDebugVisuals) Debug.LogWarning($"[PRODUCTION FIX] Reactivated {currentlyGrabbedBeaker.beakerObject.name} during grab movement");
+                float smoothedZ = Mathf.Lerp(currentlyGrabbedBeaker.beakerObject.transform.position.z, handPosition.z + currentlyGrabbedBeaker.grabOffset.z, Time.deltaTime * depthSmoothSpeed);
+                desiredPos.z = smoothedZ;
             }
-            
-            // Follow hand in X/Y, keep current Z so depth (apparent size) stays stable
-            Vector3 targetPosition = new Vector3(
-                handPosition.x,
-                handPosition.y,
-                currentlyGrabbedBeaker.beakerObject.transform.position.z
-            );
-            
+            else
+            {
+                desiredPos.z = currentlyGrabbedBeaker.beakerObject.transform.position.z; // keep previous Z
+            }
+
+            // Diagnostic: large depth discrepancy between hand and object
+            if (showDebugVisuals && Mathf.Abs(desiredPos.z - handPosition.z) > 0.5f)
+            {
+                Debug.LogWarning($"[GRAB_DIAG] Depth delta large: desiredZ={desiredPos.z:F2}, handZ={handPosition.z:F2}");
+            }
+
             // Apply safety bounds if enabled
             if (enableSafetyBounds)
             {
-                targetPosition.x = Mathf.Clamp(targetPosition.x, minBounds.x, maxBounds.x);
-                targetPosition.y = Mathf.Clamp(targetPosition.y, minBounds.y, maxBounds.y);
-                targetPosition.z = Mathf.Clamp(targetPosition.z, minBounds.z, maxBounds.z);
+                desiredPos.x = Mathf.Clamp(desiredPos.x, minBounds.x, maxBounds.x);
+                desiredPos.y = Mathf.Clamp(desiredPos.y, minBounds.y, maxBounds.y);
+                desiredPos.z = Mathf.Clamp(desiredPos.z, minBounds.z, maxBounds.z);
             }
-            
-            // DIRECT: Set position directly for immediate response (no lerp delay)
-            currentlyGrabbedBeaker.beakerObject.transform.position = targetPosition;
+
+            // Move towards the desired position with a max delta per frame for snappy, stable following
+            Vector3 currentPos = currentlyGrabbedBeaker.beakerObject.transform.position;
+            float maxDelta = moveSpeed * Time.deltaTime;
+            Vector3 newPos = Vector3.MoveTowards(currentPos, desiredPos, maxDelta);
+            currentlyGrabbedBeaker.beakerObject.transform.position = newPos;
             
             // Keep beaker upright while grabbing
             currentlyGrabbedBeaker.beakerObject.transform.rotation = Quaternion.Lerp(
@@ -458,20 +500,20 @@ public class WaterAttachToBeaker : MonoBehaviour
             
             // Force scale after movement
             currentlyGrabbedBeaker.beakerObject.transform.localScale = FIXED_BEAKER_SCALE;
-            
-            if (showDebugVisuals && Time.frameCount % 30 == 0) 
+
+            // If beaker accidentally became inactive or renderers disabled during movement, recover it
+            GameObject moveObj = currentlyGrabbedBeaker.beakerObject;
+            if (!moveObj.activeInHierarchy)
             {
-                Debug.Log($"[GRAB_MOVING] {currentlyGrabbedBeaker.beakerObject.name} | Pos={currentlyGrabbedBeaker.beakerObject.transform.position.ToString("F2")}");
+                moveObj.SetActive(true);
+                if (showDebugVisuals) Debug.LogWarning($"[GRAB_DIAG] Reactivated {moveObj.name} during movement (was inactive)");
             }
-        }
-        else if (currentlyGrabbedBeaker != null && currentlyGrabbedBeaker.isFixed)
-        {
-            if (showDebugVisuals) Debug.LogError($"[PRODUCTION ERROR] Attempted to grab FIXED beaker {currentlyGrabbedBeaker.beakerObject.name}! Releasing.");
-            currentlyGrabbedBeaker.isGrabbed = false;
-            currentlyGrabbedBeaker = null;
-            systemStatus = "Cannot grab fixed beaker - target beaker only";
-        }
-            
+
+            var moveRenderers = moveObj.GetComponentsInChildren<Renderer>(true);
+            bool anyDisabled = false;
+            foreach (var r in moveRenderers) if (!r.enabled) { anyDisabled = true; r.enabled = true; }
+            if (anyDisabled && showDebugVisuals) Debug.LogWarning($"[GRAB_DIAG] Re-enabled renderers for {moveObj.name} during movement");
+
             // Record last hand position/time so we can survive short detection flicker
             lastHandPosition = handPosition;
             lastHandTime = Time.time;
@@ -480,7 +522,7 @@ public class WaterAttachToBeaker : MonoBehaviour
             
             if (showDebugVisuals && Time.frameCount % 15 == 0) 
             {
-                Debug.Log($">> MOVING: {currentlyGrabbedBeaker.beakerObject.name} | Pos={targetPosition}");
+                Debug.Log($">> MOVING: {currentlyGrabbedBeaker.beakerObject.name} | Pos={currentlyGrabbedBeaker.beakerObject.transform.position}");
             }
         }
         else if (currentlyGrabbedBeaker != null && currentlyGrabbedBeaker.isFixed)
@@ -584,8 +626,8 @@ public class WaterAttachToBeaker : MonoBehaviour
         // Pinch should ONLY refill the source beaker (main working beaker) - NO DISTANCE CHECK
         if (sourceBeakerData == null)
         {
-            if (showDebugVisuals) Debug.LogError($"[PRODUCTION ERROR] REFILL FAILED: Source beaker not available");
-            systemStatus = "REFILL ERROR: Source beaker not available";
+            Debug.Log($"REFILL FAILED: Source beaker not available");
+            systemStatus = "Source beaker not available for refilling";
             return;
         }
 
@@ -602,49 +644,77 @@ public class WaterAttachToBeaker : MonoBehaviour
             beakerToRefill.liquidColor = new Color(1f, 0.7f, 0.2f, 0.7f); // Orange for acid
         }
         
-        // FIXED: Improved audio playback - proper error handling and volume control
+        // Play refill sound
         if (audioSource != null && refillSound != null)
         {
             try
             {
-                // Use PlayOneShot for non-overlapping audio, which handles concurrent plays
-                audioSource.PlayOneShot(refillSound, 0.8f); // 0.8 volume for clarity
-                if (showDebugVisuals) Debug.Log($"[AUDIO_SUCCESS] Refill sound played at volume 0.8");
+                audioSource.PlayOneShot(refillSound, 0.8f);
+                if (showDebugVisuals) Debug.Log("[AUDIO_SUCCESS] Refill sound played");
             }
             catch (System.Exception ex)
             {
-                Debug.LogError($"[PRODUCTION ERROR] Audio playback failed: {ex.Message}");
-            }
-        }
-        else
-        {
-            if (showDebugVisuals)
-            {
-                if (audioSource == null) Debug.LogWarning($"[PRODUCTION WARNING] AudioSource component not assigned in Inspector");
-                if (refillSound == null) Debug.LogWarning($"[PRODUCTION WARNING] Refill sound clip not assigned in Inspector");
+                Debug.LogError($"[AUDIO_ERROR] Failed to play refill sound: {ex.Message}");
             }
         }
         
         systemStatus = $"Refilling {beakerName}: {beakerToRefill.volumeML:F0}mL / {maxBeakerVolume:F0}mL";
-        if (showDebugVisuals) Debug.Log($"[REFILL_SUCCESS] {beakerName} beaker now has {beakerToRefill.volumeML:F0}mL (was {currentVolume:F0}mL)");
+        Debug.Log($"REFILL SUCCESS: {beakerName} beaker now has {beakerToRefill.volumeML:F0}mL (was {currentVolume:F0}mL)");
     }
 
     void ReleaseAllBeakers()
     {
         if (currentlyGrabbedBeaker != null)
         {
-            currentlyGrabbedBeaker.isGrabbed = false;
-            // FIXED: Ensure beaker remains visible after release
-            if (currentlyGrabbedBeaker.beakerObject != null)
+            // Ensure the beaker is left visible and interactive after release
+            ChemistryBeaker temp = currentlyGrabbedBeaker;
+            GameObject rObj = temp.beakerObject;
+            if (rObj != null)
             {
-                currentlyGrabbedBeaker.beakerObject.SetActive(true);
-                if (showDebugVisuals) Debug.Log($"[GRAB_RELEASED] {currentlyGrabbedBeaker.beakerObject.name} released and remains visible");
+                if (!rObj.activeInHierarchy) rObj.SetActive(true);
+                var rens = rObj.GetComponentsInChildren<Renderer>(true);
+                foreach (var r in rens) r.enabled = true;
+                var cols = rObj.GetComponentsInChildren<Collider>(true);
+                foreach (var c in cols) c.enabled = true;
+
+                // Restore original parent if we detached it
+                if (temp.originalParent != null)
+                {
+                    // Use worldPositionStays=false to avoid inheriting weird world transforms; we'll reapply world position if needed
+                    rObj.transform.SetParent(temp.originalParent, false);
+                    if (showDebugVisuals) Debug.Log($"[GRAB_RELEASED] Restored parent {temp.originalParent.name} for {rObj.name}");
+                }
+
+                // Restore physics state if we changed it during grab
+                if (temp.rb != null)
+                {
+                    // clear any velocities and restore kinematic flag
+                    ClearRigidbodyVelocities(temp.rb);
+                    temp.rb.isKinematic = temp.wasKinematic;
+                    if (showDebugVisuals) Debug.Log("[GRAB_PHYSICS] Restored Rigidbody kinematic state and cleared velocities on release");
+                }
+
+                // Enforce fixed scale after reparenting to avoid parent scale propagation
+                rObj.transform.localScale = FIXED_BEAKER_SCALE;
+
+                // If the object ended up far outside expected play area, snap it back to initial safe position
+                float distFromInit = Vector3.Distance(rObj.transform.position, temp.initialPosition);
+                if (distFromInit > 5f || rObj.transform.position.z < minBounds.z || rObj.transform.position.z > maxBounds.z)
+                {
+                    rObj.transform.position = temp.initialPosition;
+                    rObj.transform.rotation = temp.initialRotation;
+                    if (showDebugVisuals) Debug.LogWarning($"[GRAB_RELEASED] {rObj.name} was out-of-bounds (dist={distFromInit:F2}), snapped back to initial position");
+                }
+
+                if (showDebugVisuals) Debug.Log($"[GRAB_RELEASED] {rObj.name} released and ensured visible");
             }
+
+            temp.isGrabbed = false;
             currentlyGrabbedBeaker = null;
         }
         isPouringBetweenBeakers = false;
         if (currentGesture == ManoGestureContinuous.NO_GESTURE)
-            systemStatus = "Chemistry Lab Ready - Show hand to interact";
+            systemStatus = "Chemistry Lab Ready";
     }
 
     // Safety bounds
@@ -678,6 +748,43 @@ void UpdateWaterPouring()
 {
     UpdateBeakerPouring(sourceBeakerData);
     UpdateBeakerPouring(targetBeakerData);
+}
+
+// Utility: clear rigidbody velocities in a forward-compatible way using reflection
+private void ClearRigidbodyVelocities(Rigidbody rb)
+{
+    if (rb == null) return;
+    var t = rb.GetType();
+    // Try property 'linearVelocity' (newer APIs)
+    var linearProp = t.GetProperty("linearVelocity");
+    if (linearProp != null && linearProp.CanWrite)
+    {
+        linearProp.SetValue(rb, Vector3.zero, null);
+    }
+    else
+    {
+        // Try 'velocity' via reflection as a fallback
+        var velProp = t.GetProperty("velocity");
+        if (velProp != null && velProp.CanWrite)
+        {
+            velProp.SetValue(rb, Vector3.zero, null);
+        }
+    }
+
+    // angular velocity
+    var angularProp = t.GetProperty("angularVelocity");
+    if (angularProp != null && angularProp.CanWrite)
+    {
+        angularProp.SetValue(rb, Vector3.zero, null);
+    }
+    else
+    {
+        var angPropAlt = t.GetProperty("angularVelocity");
+        if (angPropAlt != null && angPropAlt.CanWrite)
+        {
+            angPropAlt.SetValue(rb, Vector3.zero, null);
+        }
+    }
 }
 
 // The remaining methods are properly defined below
@@ -787,9 +894,17 @@ void UpdateBeakerPouring(ChemistryBeaker beakerData)
             beakerData.waterEffect.Play();
             
             // Play pour sound
-            if (audioSource != null && pourSound != null && !audioSource.isPlaying)
+            if (audioSource != null && pourSound != null)
             {
-                audioSource.PlayOneShot(pourSound);
+                try
+                {
+                    audioSource.PlayOneShot(pourSound, 0.9f);
+                    if (showDebugVisuals) Debug.Log("[AUDIO_SUCCESS] Pour sound played");
+                }
+                catch (System.Exception ex)
+                {
+                    Debug.LogError($"[AUDIO_ERROR] Failed to play pour sound: {ex.Message}");
+                }
             }
         }
     }
@@ -1371,7 +1486,15 @@ public void RefillTargetBeaker()
         // Play refill sound
         if (audioSource != null && refillSound != null)
         {
-            audioSource.PlayOneShot(refillSound);
+            try
+            {
+                audioSource.PlayOneShot(refillSound, 0.8f);
+                if (showDebugVisuals) Debug.Log("[AUDIO_SUCCESS] Refill (target) sound played");
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"[AUDIO_ERROR] Failed to play refill (target) sound: {ex.Message}");
+            }
         }
     }
 }

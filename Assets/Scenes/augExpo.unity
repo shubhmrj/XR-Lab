@@ -1472,6 +1472,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 420349968}
   m_CullTransparentMesh: 1
+--- !u!1 &434470649 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9028627854349766800, guid: 6d0536f38501def41a310e2063a2f6d2, type: 3}
+  m_PrefabInstance: {fileID: 1493185051}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &447306447
 GameObject:
   m_ObjectHideFlags: 0
@@ -1690,8 +1695,13 @@ MonoBehaviour:
   handPositionOffset: {x: 0, y: 0, z: 0}
   coordinateScale: 10
   isLandscapeMode: 1
+  followHandDepth: 1
+  depthSmoothSpeed: 8
+  maxInitialSnapDistance: 0.7
+  initialSnapSpeed: 30
   useGestureControls: 1
   autoReturnWhenNoGesture: 1
+  grabAnywhere: 1
   audioSource: {fileID: 0}
   pourSound: {fileID: 0}
   refillSound: {fileID: 0}
@@ -2233,6 +2243,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Erlenmeyer_flask with water
       objectReference: {fileID: 0}
+    - target: {fileID: 8482147909517439867, guid: 39e20c3c5c68da0408b746e98d3752c1, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 9150597809499253185, guid: 39e20c3c5c68da0408b746e98d3752c1, type: 3}
       propertyPath: m_LocalScale.x
       value: 10
@@ -2320,7 +2334,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sourceBeaker: {fileID: 1944599700}
-  targetBeaker: {fileID: 1514937484}
+  targetBeaker: {fileID: 434470649}
   waterParticlesPrefab: {fileID: 1476004466}
   grabDetectionRadius: 10
   sourcePourPoint: {fileID: 620645010}
@@ -2337,8 +2351,13 @@ MonoBehaviour:
   handPositionOffset: {x: 0, y: 0, z: 10}
   coordinateScale: 3
   isLandscapeMode: 1
+  followHandDepth: 1
+  depthSmoothSpeed: 8
+  maxInitialSnapDistance: 0.7
+  initialSnapSpeed: 30
   useGestureControls: 1
   autoReturnWhenNoGesture: 1
+  grabAnywhere: 1
   audioSource: {fileID: 183069265}
   pourSound: {fileID: 8300000, guid: 5b65ef45b5e0d7c4aa694be881009bbc, type: 3}
   refillSound: {fileID: 8300000, guid: 51846f4834bf34441b0e08458e6e733d, type: 3}
@@ -4733,7 +4752,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9028627854349766800, guid: 6d0536f38501def41a310e2063a2f6d2, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -5057,11 +5076,6 @@ Transform:
   - {fileID: 277263601}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1514937484 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8482147909517439867, guid: 39e20c3c5c68da0408b746e98d3752c1, type: 3}
-  m_PrefabInstance: {fileID: 854584609}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1519388437
 GameObject:
   m_ObjectHideFlags: 0

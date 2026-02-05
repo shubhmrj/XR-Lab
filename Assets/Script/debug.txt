@@ -1,0 +1,359 @@
+02-05 12:32:27.238 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:27.238 I/Unity   (11131): WaterAttachToBeaker:HandleTiltGesture(Single)
+02-05 12:32:27.238 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:27.238 I/Unity   (11131):
+02-05 12:32:27.290 I/Unity   (11131): TILT: Beaker angle: -20.7┬░ ΓåÆ -45.0┬░
+02-05 12:32:27.290 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:27.290 I/Unity   (11131): WaterAttachToBeaker:HandleTiltGesture(Single)
+02-05 12:32:27.290 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:27.290 I/Unity   (11131):
+02-05 12:32:27.340 I/Unity   (11131): TILT: Beaker angle: -19.6┬░ ΓåÆ -45.0┬░
+02-05 12:32:27.340 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:27.340 I/Unity   (11131): WaterAttachToBeaker:HandleTiltGesture(Single)
+02-05 12:32:27.340 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:27.340 I/Unity   (11131):
+02-05 12:32:27.437 I/Unity   (11131): TILT: Beaker angle: -19.4┬░ ΓåÆ -45.0┬░
+02-05 12:32:27.437 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:27.437 I/Unity   (11131): WaterAttachToBeaker:HandleTiltGesture(Single)
+02-05 12:32:27.437 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:27.437 I/Unity   (11131):
+02-05 12:32:27.479 I/Unity   (11131): TILT: Beaker angle: -0.6┬░ ΓåÆ -45.0┬░
+02-05 12:32:27.479 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:27.479 I/Unity   (11131): WaterAttachToBeaker:HandleTiltGesture(Single)
+02-05 12:32:27.479 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:27.479 I/Unity   (11131):
+02-05 12:32:27.526 I/Unity   (11131): TILT: Beaker angle: -17.0┬░ ΓåÆ -45.0┬░
+02-05 12:32:27.526 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:27.526 I/Unity   (11131): WaterAttachToBeaker:HandleTiltGesture(Single)
+02-05 12:32:27.526 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:27.526 I/Unity   (11131):
+02-05 12:32:27.566 I/Unity   (11131): TILT: Beaker angle: -20.7┬░ ΓåÆ -45.0┬░
+02-05 12:32:27.566 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:27.566 I/Unity   (11131): WaterAttachToBeaker:HandleTiltGesture(Single)
+02-05 12:32:27.566 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:27.566 I/Unity   (11131):
+02-05 12:32:27.612 I/Unity   (11131): TILT: Beaker angle: -19.6┬░ ΓåÆ -45.0┬░
+02-05 12:32:27.612 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:27.612 I/Unity   (11131): WaterAttachToBeaker:HandleTiltGesture(Single)
+02-05 12:32:27.612 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:27.612 I/Unity   (11131):
+02-05 12:32:27.660 I/Unity   (11131): TILT: Beaker angle: -21.6┬░ ΓåÆ -45.0┬░
+02-05 12:32:27.660 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:27.660 I/Unity   (11131): WaterAttachToBeaker:HandleTiltGesture(Single)
+02-05 12:32:27.660 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:27.660 I/Unity   (11131):
+02-05 12:32:27.708 I/Unity   (11131): TILT: Beaker angle: -19.7┬░ ΓåÆ -45.0┬░
+02-05 12:32:27.708 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:27.708 I/Unity   (11131): WaterAttachToBeaker:HandleTiltGesture(Single)
+02-05 12:32:27.708 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:27.708 I/Unity   (11131):
+02-05 12:32:27.759 I/Unity   (11131): TILT: Beaker angle: -19.4┬░ ΓåÆ -45.0┬░
+02-05 12:32:27.759 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:27.759 I/Unity   (11131): WaterAttachToBeaker:HandleTiltGesture(Single)
+02-05 12:32:27.759 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:27.759 I/Unity   (11131):
+02-05 12:32:27.805 I/Unity   (11131): TILT: Beaker angle: -19.4┬░ ΓåÆ -45.0┬░
+02-05 12:32:27.805 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:27.805 I/Unity   (11131): WaterAttachToBeaker:HandleTiltGesture(Single)
+02-05 12:32:27.805 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:27.805 I/Unity   (11131):
+02-05 12:32:27.869 I/Unity   (11131): TILT: Beaker angle: -19.4┬░ ΓåÆ -45.0┬░
+02-05 12:32:27.869 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:27.869 I/Unity   (11131): WaterAttachToBeaker:HandleTiltGesture(Single)
+02-05 12:32:27.869 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:27.869 I/Unity   (11131):
+02-05 12:32:27.914 I/Unity   (11131): [GRAB_ANYWHERE] Beaker water grabbed (global mode)
+02-05 12:32:27.914 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:27.914 I/Unity   (11131): WaterAttachToBeaker:GetNearestGrabbableBeaker(Vector3)
+02-05 12:32:27.914 I/Unity   (11131): WaterAttachToBeaker:HandleGrabGesture(Vector3)
+02-05 12:32:27.914 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:27.914 I/Unity   (11131):
+02-05 12:32:27.915 I/Unity   (11131): >>> GRAB_ACQUIRED: Beaker water <<< (wasActive=True, pos=(2.65, 2.63, 10.00), scale=(8.00, 8.00, 8.00), previousParent=null, camDist=10.39)
+02-05 12:32:27.915 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:27.915 I/Unity   (11131): WaterAttachToBeaker:HandleGrabGesture(Vector3)
+02-05 12:32:27.915 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:27.915 I/Unity   (11131):
+02-05 12:32:27.916 I/Unity   (11131): [GRAB_SNAP] large offset 0.70m ΓÇö snapping towards hand (newPos=(-1.00, -1.01, 10.00))
+02-05 12:32:27.916 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:27.916 I/Unity   (11131): WaterAttachToBeaker:HandleGrabGesture(Vector3)
+02-05 12:32:27.916 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:27.916 I/Unity   (11131):
+02-05 12:32:27.990 I/BufferQueueProducer(  832): [SurfaceView - com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity@a77d181@0(BLAST)#0](this:0xb400007ad3634948,id:-1,api:0,p:-1,c:832) queueBuffer: fps=19.57 dur=1021.85 max=83.50 min=33.40
+02-05 12:32:28.339 I/Unity   (11131): HAND: BBox=(0.000,1.000) ΓåÆ Norm=(-1.500,-1.500) ΓåÆ World=(-1.50, -1.50, 10.00)     
+02-05 12:32:28.339 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:28.339 I/Unity   (11131): WaterAttachToBeaker:CalculateHandPosition(BoundingBox)
+02-05 12:32:28.339 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:28.339 I/Unity   (11131):
+02-05 12:32:28.340 I/Unity   (11131): >> MOVING: Beaker water | Pos=(-1.00, -1.01, 10.00)
+02-05 12:32:28.340 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:28.340 I/Unity   (11131): WaterAttachToBeaker:HandleGrabGesture(Vector3)
+02-05 12:32:28.340 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:28.340 I/Unity   (11131):
+02-05 12:32:28.341 I/Unity   (11131): SOURCE_TILT: Angle=0.8┬░ | Threshold=25.0┬░ | Volume=0mL | Pouring=False
+02-05 12:32:28.341 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:28.341 I/Unity   (11131): WaterAttachToBeaker:UpdateBeakerPouring(ChemistryBeaker)
+02-05 12:32:28.341 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:28.341 I/Unity   (11131):
+02-05 12:32:28.994 I/BufferQueueProducer(  832): [SurfaceView - com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity@a77d181@0(BLAST)#0](this:0xb400007ad3634948,id:-1,api:0,p:-1,c:832) queueBuffer: fps=17.92 dur=1004.56 max=83.93 min=32.96
+02-05 12:32:29.234 I/Unity   (11131): >> MOVING: Beaker water | Pos=(-1.00, -1.01, 10.00)
+02-05 12:32:29.234 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:29.234 I/Unity   (11131): WaterAttachToBeaker:HandleGrabGesture(Vector3)
+02-05 12:32:29.234 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:29.234 I/Unity   (11131):
+02-05 12:32:30.015 I/BufferQueueProducer(  832): [SurfaceView - com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity@a77d181@0(BLAST)#0](this:0xb400007ad3634948,id:-1,api:0,p:-1,c:832) queueBuffer: fps=16.65 dur=1020.97 max=100.51 min=49.96
+02-05 12:32:30.124 I/Unity   (11131): HAND: BBox=(0.000,1.000) ΓåÆ Norm=(-1.500,-1.500) ΓåÆ World=(-1.50, -1.50, 10.00)     
+02-05 12:32:30.124 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:30.124 I/Unity   (11131): WaterAttachToBeaker:CalculateHandPosition(BoundingBox)
+02-05 12:32:30.124 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:30.124 I/Unity   (11131):
+02-05 12:32:30.127 I/Unity   (11131): >> MOVING: Beaker water | Pos=(-1.00, -1.01, 10.00)
+02-05 12:32:30.127 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:30.127 I/Unity   (11131): WaterAttachToBeaker:HandleGrabGesture(Vector3)
+02-05 12:32:30.127 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:30.127 I/Unity   (11131):
+02-05 12:32:30.128 I/Unity   (11131): SOURCE_TILT: Angle=0.8┬░ | Threshold=25.0┬░ | Volume=0mL | Pouring=False
+02-05 12:32:30.128 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:30.128 I/Unity   (11131): WaterAttachToBeaker:UpdateBeakerPouring(ChemistryBeaker)
+02-05 12:32:30.128 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:30.128 I/Unity   (11131):
+02-05 12:32:30.238 I/Unity   (11131): [GRAB_RELEASED] Beaker water released and ensured visible
+02-05 12:32:30.238 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:30.238 I/Unity   (11131): WaterAttachToBeaker:ReleaseAllBeakers()
+02-05 12:32:30.238 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:30.238 I/Unity   (11131):
+02-05 12:32:30.240 I/Unity   (11131): TILT: Beaker angle: -0.6┬░ ΓåÆ -45.0┬░
+02-05 12:32:30.240 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:30.240 I/Unity   (11131): WaterAttachToBeaker:HandleTiltGesture(Single)
+02-05 12:32:30.240 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:30.240 I/Unity   (11131):
+02-05 12:32:30.294 I/Unity   (11131): TILT: Beaker angle: -15.2┬░ ΓåÆ -45.0┬░
+02-05 12:32:30.294 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:30.294 I/Unity   (11131): WaterAttachToBeaker:HandleTiltGesture(Single)
+02-05 12:32:30.294 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:30.294 I/Unity   (11131):
+02-05 12:32:30.349 I/Unity   (11131): TILT: Beaker angle: -18.9┬░ ΓåÆ -45.0┬░
+02-05 12:32:30.349 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:30.349 I/Unity   (11131): WaterAttachToBeaker:HandleTiltGesture(Single)
+02-05 12:32:30.349 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:30.349 I/Unity   (11131):
+02-05 12:32:30.413 I/Unity   (11131): TILT: Beaker angle: -15.1┬░ ΓåÆ -45.0┬░
+02-05 12:32:30.413 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:30.413 I/Unity   (11131): WaterAttachToBeaker:HandleTiltGesture(Single)
+02-05 12:32:30.413 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:30.413 I/Unity   (11131):
+02-05 12:32:30.473 I/Unity   (11131): TILT: Beaker angle: -18.8┬░ ΓåÆ -45.0┬░
+02-05 12:32:30.473 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:30.473 I/Unity   (11131): WaterAttachToBeaker:HandleTiltGesture(Single)
+02-05 12:32:30.473 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:30.473 I/Unity   (11131):
+02-05 12:32:30.531 I/Unity   (11131): TILT: Beaker angle: -15.1┬░ ΓåÆ -45.0┬░
+02-05 12:32:30.531 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:30.531 I/Unity   (11131): WaterAttachToBeaker:HandleTiltGesture(Single)
+02-05 12:32:30.531 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:30.531 I/Unity   (11131):
+02-05 12:32:30.605 I/Unity   (11131): TILT: Beaker angle: -15.1┬░ ΓåÆ -45.0┬░
+02-05 12:32:30.605 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:30.605 I/Unity   (11131): WaterAttachToBeaker:HandleTiltGesture(Single)
+02-05 12:32:30.605 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:30.605 I/Unity   (11131):
+02-05 12:32:30.669 I/Unity   (11131): TILT: Beaker angle: -18.8┬░ ΓåÆ -45.0┬░
+02-05 12:32:30.669 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:30.669 I/Unity   (11131): WaterAttachToBeaker:HandleTiltGesture(Single)
+02-05 12:32:30.669 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:30.669 I/Unity   (11131):
+02-05 12:32:30.821 I/Unity   (11131): TILT: Beaker angle: -8.7┬░ ΓåÆ -45.0┬░
+02-05 12:32:30.821 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:30.821 I/Unity   (11131): WaterAttachToBeaker:HandleTiltGesture(Single)
+02-05 12:32:30.821 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:30.821 I/Unity   (11131):
+02-05 12:32:30.868 I/Unity   (11131): TILT: Beaker angle: -0.6┬░ ΓåÆ -45.0┬░
+02-05 12:32:30.868 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:30.868 I/Unity   (11131): WaterAttachToBeaker:HandleTiltGesture(Single)
+02-05 12:32:30.868 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:30.868 I/Unity   (11131):
+02-05 12:32:30.921 I/Unity   (11131): TILT: Beaker angle: -17.0┬░ ΓåÆ -45.0┬░
+02-05 12:32:30.921 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:30.921 I/Unity   (11131): WaterAttachToBeaker:HandleTiltGesture(Single)
+02-05 12:32:30.921 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:30.921 I/Unity   (11131):
+02-05 12:32:30.964 I/Unity   (11131): [GRAB_ANYWHERE] Beaker water grabbed (global mode)
+02-05 12:32:30.964 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:30.964 I/Unity   (11131): WaterAttachToBeaker:GetNearestGrabbableBeaker(Vector3)
+02-05 12:32:30.964 I/Unity   (11131): WaterAttachToBeaker:HandleGrabGesture(Vector3)
+02-05 12:32:30.964 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:30.964 I/Unity   (11131):
+02-05 12:32:30.965 I/Unity   (11131): >>> GRAB_ACQUIRED: Beaker water <<< (wasActive=True, pos=(-1.00, -1.01, 10.00), scale=(8.00, 8.00, 8.00), previousParent=null, camDist=11.26)       
+02-05 12:32:30.965 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:30.965 I/Unity   (11131): WaterAttachToBeaker:HandleGrabGesture(Vector3)
+02-05 12:32:30.965 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:30.965 I/Unity   (11131):
+02-05 12:32:31.019 I/BufferQueueProducer(  832): [SurfaceView - com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity@a77d181@0(BLAST)#0](this:0xb400007ad3634948,id:-1,api:0,p:-1,c:832) queueBuffer: fps=15.94 dur=1004.07 max=150.94 min=33.01
+02-05 12:32:31.062 I/Unity   (11131): >> MOVING: Beaker water | Pos=(-1.00, -1.01, 10.00)
+02-05 12:32:31.062 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:31.062 I/Unity   (11131): WaterAttachToBeaker:HandleGrabGesture(Vector3)
+02-05 12:32:31.062 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:31.062 I/Unity   (11131):
+02-05 12:32:31.794 I/Unity   (11131): HAND: BBox=(0.000,1.000) ΓåÆ Norm=(-1.500,-1.500) ΓåÆ World=(-1.50, -1.50, 10.00)     
+02-05 12:32:31.794 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:31.794 I/Unity   (11131): WaterAttachToBeaker:CalculateHandPosition(BoundingBox)
+02-05 12:32:31.794 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:31.794 I/Unity   (11131):
+02-05 12:32:31.795 I/Unity   (11131): >> MOVING: Beaker water | Pos=(-1.00, -1.01, 10.00)
+02-05 12:32:31.795 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:31.795 I/Unity   (11131): WaterAttachToBeaker:HandleGrabGesture(Vector3)
+02-05 12:32:31.795 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:31.795 I/Unity   (11131):
+02-05 12:32:31.796 I/Unity   (11131): SOURCE_TILT: Angle=0.8┬░ | Threshold=25.0┬░ | Volume=0mL | Pouring=False
+02-05 12:32:31.796 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:31.796 I/Unity   (11131): WaterAttachToBeaker:UpdateBeakerPouring(ChemistryBeaker)
+02-05 12:32:31.796 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:31.796 I/Unity   (11131):
+02-05 12:32:32.024 I/BufferQueueProducer(  832): [SurfaceView - com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity@a77d181@0(BLAST)#0](this:0xb400007ad3634948,id:-1,api:0,p:-1,c:832) queueBuffer: fps=19.91 dur=1004.67 max=84.12 min=33.37
+02-05 12:32:32.603 I/Unity   (11131): >> MOVING: Beaker water | Pos=(-1.00, -1.01, 10.00)
+02-05 12:32:32.603 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:32.603 I/Unity   (11131): WaterAttachToBeaker:HandleGrabGesture(Vector3)
+02-05 12:32:32.603 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:32.603 I/Unity   (11131):
+02-05 12:32:32.899 I/SurfaceFlinger(  832): id=50168 Removed Surface(name=eaaaa4e com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity)/@0xf948e7e - animation-leash of starting_reveal#0 (119)
+02-05 12:32:32.911 I/Layer   (  832): id=50168 Destroyed Surface(name=eaaaa4e com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity)/@0xf948e7e - animation-leash of starting_reveal#0
+02-05 12:32:32.925 I/SurfaceFlinger(  832): id=50245 Removed Surface(name=6ddfb91 com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity)/@0x23363d - animation-leash of starting_reveal#0 (118)
+02-05 12:32:32.929 I/Layer   (  832): id=50245 Destroyed Surface(name=6ddfb91 com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity)/@0x23363d - animation-leash of starting_reveal#0
+02-05 12:32:33.045 I/BufferQueueProducer(  832): [SurfaceView - com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity@a77d181@0(BLAST)#0](this:0xb400007ad3634948,id:-1,api:0,p:-1,c:832) queueBuffer: fps=16.65 dur=1020.76 max=117.42 min=33.69
+02-05 12:32:33.071 I/ViewRootImpl@842b20e[UnityPlayerGameActivity](11131): ViewPostIme pointer 0
+02-05 12:32:33.137 D/WindowManager( 1422): requestTransientBars: swipeTarget=Window{2107dcd u0 NavigationBar0}, controlTarget=Window{6ddfb91 u0 com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity}, canShowTransient=true, restorePositionTypes=0x0, from=com.android.server.wm.DisplayPolicy.access$100:227 com.android.server.wm.DisplayPolicy$1.onSwipeFromRight:597
+02-05 12:32:33.207 I/ViewRootImpl@842b20e[UnityPlayerGameActivity](11131): ViewPostIme pointer 1
+02-05 12:32:33.218 D/SurfaceFlinger(  832):      DEVICE | 0xb400007ad351b780 | 0102 | RGBA_8888    |    0.0    0.0  810.0 1800.0 |    0    0 1080 2400 | SurfaceView - com.UnityTechnologies.[...]layerGameActivity@a77d181@0(BLAST)#0
+02-05 12:32:33.235 D/SurfaceFlinger(  832):      DEVICE | 0xb400007ad351b780 | 0102 | RGBA_8888    |    0.0    0.0  810.0 1800.0 |    0    0 1080 2400 | SurfaceView - com.UnityTechnologies.[...]layerGameActivity@a77d181@0(BLAST)#0
+02-05 12:32:33.755 I/Unity   (11131): HAND: BBox=(0.000,1.000) ΓåÆ Norm=(-1.500,-1.500) ΓåÆ World=(-1.50, -1.50, 10.00)     
+02-05 12:32:33.755 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:33.755 I/Unity   (11131): WaterAttachToBeaker:CalculateHandPosition(BoundingBox)
+02-05 12:32:33.755 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:33.755 I/Unity   (11131):
+02-05 12:32:33.757 I/Unity   (11131): >> MOVING: Beaker water | Pos=(-1.00, -1.01, 10.00)
+02-05 12:32:33.757 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:33.757 I/Unity   (11131): WaterAttachToBeaker:HandleGrabGesture(Vector3)
+02-05 12:32:33.757 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:33.757 I/Unity   (11131):
+02-05 12:32:33.762 I/Unity   (11131): SOURCE_TILT: Angle=0.8┬░ | Threshold=25.0┬░ | Volume=0mL | Pouring=False
+02-05 12:32:33.762 I/Unity   (11131): UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+02-05 12:32:33.762 I/Unity   (11131): WaterAttachToBeaker:UpdateBeakerPouring(ChemistryBeaker)
+02-05 12:32:33.762 I/Unity   (11131): WaterAttachToBeaker:Update()
+02-05 12:32:33.762 I/Unity   (11131):
+02-05 12:32:34.049 I/BufferQueueProducer(  832): [SurfaceView - com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity@a77d181@0(BLAST)#0](this:0xb400007ad3634948,id:-1,api:0,p:-1,c:832) queueBuffer: fps=12.95 dur=1004.22 max=167.33 min=50.03
+02-05 12:32:34.220 I/RecentsView( 2240): onGestureAnimationStart, runningTaskInfo : TaskInfo{userId=0 taskId=627 displayId=0 isRunning=true baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity } baseActivity=ComponentInfo{com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity} topActivity=ComponentInfo{com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity} origActivity=null realActivity=ComponentInfo{com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity} numActivities=1 lastActiveTime=541758253 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=2 isResizeable=true token=WCT{android.window.IWindowContainerToken$Stub$Proxy@56b32e3} topActivityType=1 pictureInPictureParams=PictureInPictureParams( aspectRatio=null sourceRectHint=null hasSetActions=false isAutoPipEnabled=false isSeamlessResizeEnabled=true) displayCutoutSafeInsets=null topActivityInfo=ActivityInfo{6b804e0 com.unity3d.player.UnityPlayerGameActivity} launchCookies=[com.android.launcher3.util.ObjectWrapper@3168399] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true topActivityInSizeCompat=false locusId= null topLaunchHome=false launchSplitWindowingMode=0 isPairTask=false pairedTaskIds=[] pairWindowingMode=0 pairDockSide=0 isAnimatingByRecent=false originallySupportedSplitScreen=true isAnimatingFreeformToFullscreen=false topActivityInFixedAspectRatio=false isTopTransparentActivity=true}
+02-05 12:32:34.275 I/RecentsView( 2240): showCurrentTask : TaskInfo{userId=0 taskId=627 displayId=0 isRunning=true baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity } baseActivity=ComponentInfo{com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity} topActivity=ComponentInfo{com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity} origActivity=null realActivity=ComponentInfo{com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity} numActivities=1 lastActiveTime=541758253 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=2 isResizeable=true token=WCT{android.window.IWindowContainerToken$Stub$Proxy@56b32e3} topActivityType=1 pictureInPictureParams=PictureInPictureParams( aspectRatio=null sourceRectHint=null hasSetActions=false isAutoPipEnabled=false isSeamlessResizeEnabled=true) displayCutoutSafeInsets=null topActivityInfo=ActivityInfo{6b804e0 com.unity3d.player.UnityPlayerGameActivity} launchCookies=[com.android.launcher3.util.ObjectWrapper@3168399] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true topActivityInSizeCompat=false locusId= null topLaunchHome=false launchSplitWindowingMode=0 isPairTask=false pairedTaskIds=[] pairWindowingMode=0 pairDockSide=0 isAnimatingByRecent=false originallySupportedSplitScreen=true isAnimatingFreeformToFullscreen=false topActivityInFixedAspectRatio=false isTopTransparentActivity=true}
+02-05 12:32:34.317 I/RecentsView( 2240): onGestureAnimationStart, runningTaskInfo : TaskInfo{userId=0 taskId=627 displayId=0 isRunning=true baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity } baseActivity=ComponentInfo{com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity} topActivity=ComponentInfo{com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity} origActivity=null realActivity=ComponentInfo{com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity} numActivities=1 lastActiveTime=541758253 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=2 isResizeable=true token=WCT{android.window.IWindowContainerToken$Stub$Proxy@56b32e3} topActivityType=1 pictureInPictureParams=PictureInPictureParams( aspectRatio=null sourceRectHint=null hasSetActions=false isAutoPipEnabled=false isSeamlessResizeEnabled=true) displayCutoutSafeInsets=null topActivityInfo=ActivityInfo{6b804e0 com.unity3d.player.UnityPlayerGameActivity} launchCookies=[com.android.launcher3.util.ObjectWrapper@3168399] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true topActivityInSizeCompat=false locusId= null topLaunchHome=false launchSplitWindowingMode=0 isPairTask=false pairedTaskIds=[] pairWindowingMode=0 pairDockSide=0 isAnimatingByRecent=false originallySupportedSplitScreen=true isAnimatingFreeformToFullscreen=false topActivityInFixedAspectRatio=false isTopTransparentActivity=true}
+02-05 12:32:34.318 I/RecentsView( 2240): showCurrentTask : TaskInfo{userId=0 taskId=627 displayId=0 isRunning=true baseIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity } baseActivity=ComponentInfo{com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity} topActivity=ComponentInfo{com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity} origActivity=null realActivity=ComponentInfo{com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity} numActivities=1 lastActiveTime=541758253 supportsSplitScreenMultiWindow=true supportsMultiWindow=true resizeMode=2 isResizeable=true token=WCT{android.window.IWindowContainerToken$Stub$Proxy@56b32e3} topActivityType=1 pictureInPictureParams=PictureInPictureParams( aspectRatio=null sourceRectHint=null hasSetActions=false isAutoPipEnabled=false isSeamlessResizeEnabled=true) displayCutoutSafeInsets=null topActivityInfo=ActivityInfo{6b804e0 com.unity3d.player.UnityPlayerGameActivity} launchCookies=[com.android.launcher3.util.ObjectWrapper@3168399] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true topActivityInSizeCompat=false locusId= null topLaunchHome=false launchSplitWindowingMode=0 isPairTask=false pairedTaskIds=[] pairWindowingMode=0 pairDockSide=0 isAnimatingByRecent=false originallySupportedSplitScreen=true isAnimatingFreeformToFullscreen=false topActivityInFixedAspectRatio=false isTopTransparentActivity=true}
+02-05 12:32:34.328 D/WindowManager( 1422): Moved rootTask=Task{71bb504 #1 type=home ?? U=0 visible=false mode=fullscreen translucent=true sz=1} behind rootTask=Task{b384337 #627 type=standard A=10330:com.UnityTechnologies.com.unity.template.urpblank U=0 visible=true mode=fullscreen translucent=false sz=1}    
+02-05 12:32:34.335 D/WindowManager( 1422): rotationForOrientation, orientationSource=ActivityRecord{d3595d1 u0 com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity t627}
+02-05 12:32:34.429 D/SGM:GameManager( 1422): identifyForegroundApp. com.UnityTechnologies.com.unity.template.urpblank, mCurrentUserId: 0, callerUserId: 0
+02-05 12:32:34.429 D/SGM:PkgDataHelper( 1422): getGamePkgData(). com.UnityTechnologies.com.unity.template.urpblank
+02-05 12:32:34.434 D/SGM:GameManager( 1422): identifyGamePackage. com.UnityTechnologies.com.unity.template.urpblank, mCurrentUserId: 0, callerUserId: 0, callingMethodInfo: com.samsung.android.game.IGameManagerService$Stub.onTransact(IGameManagerService.java:242)
+02-05 12:32:34.437 D/SGM:PkgDataHelper( 1422): getGamePkgData(). com.UnityTechnologies.com.unity.template.urpblank
+02-05 12:32:34.475 I/AppIconSolution( 2240): getThemeIconWithBG called with public API, pkg = com.UnityTechnologies.com.unity.template.urpblank
+02-05 12:32:34.488 I/AppIconSolution( 2240): start to load, pkg=com.UnityTechnologies.com.unity.template.urpblank, bg=192-192, dr=126-126, forDefault=true, density=420
+02-05 12:32:34.491 I/AppIconSolution( 2240): getIconScale, pkg=com.UnityTechnologies.com.unity.template.urpblank, size=126, iconScale=IconScale[alpha=0, scale=1.0, isCrop=true]
+02-05 12:32:34.497 I/AppIconSolution( 2240): default container[CROP], pkg=com.UnityTechnologies.com.unity.template.urpblank, bg=126-126, dr=126-126, isNight = true
+02-05 12:32:34.509 I/LauncherActivityInfo( 2240): packageName: com.UnityTechnologies.com.unity.template.urpblank, useThemeIcon: false, height: 126, width: 126, density: 420
+02-05 12:32:34.554 D/InputDispatcher( 1422): Focus left window (0): 6ddfb91 com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity
+02-05 12:32:34.555 I/ViewRootImpl@842b20e[UnityPlayerGameActivity](11131): MSG_WINDOW_FOCUS_CHANGED 0 1
+02-05 12:32:34.557 D/MdnieScenarioControlService( 1422):  packageName : com.UnityTechnologies.com.unity.template.urpblank    className : com.unity3d.player.UnityPlayerGameActivity       
+02-05 12:32:34.569 I/Unity   (11131): Handle cmd APP_CMD_LOST_FOCUS(8)
+02-05 12:32:34.641 D/SurfaceFlinger(  832):      CLIENT |              | 0002 |  Unknown  |    0.0    0.0    0.0    0.0 |   75  162 1026 2221 | Background for SurfaceView - com.Uni[...].UnityPlayerGameActivity@a77d181@0#0
+02-05 12:32:34.641 D/SurfaceFlinger(  832):      CLIENT | 0xb400007ad351c080 | 0102 | RGBA_8888    |    0.0    0.0  810.0 1754.0 |   75  162 1026 2221 | SurfaceView - com.UnityTechnologies.[...]layerGameActivity@a77d181@0(BLAST)#0
+02-05 12:32:34.918 I/SurfaceFlinger(  832): operator()(), mtkRenderCntDebug 3185, screenshot (Background for SurfaceView - com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity@a77d181@0#0)
+02-05 12:32:34.918 I/SurfaceFlinger(  832): operator()(), mtkRenderCntDebug 3185, screenshot (SurfaceView - com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity@a77d181@0(BLAST)#0)
+02-05 12:32:34.918 I/SurfaceFlinger(  832): operator()(), mtkRenderCntDebug 3185, screenshot (com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity$_11131#0)
+02-05 12:32:35.018 D/WindowManager( 1422): onAnimationFinished(): targetRootTask=Task{71bb504 #1 type=home ?? U=0 visible=false mode=fullscreen translucent=false sz=1} targetActivity=ActivityRecord{a2af22 u0 com.sec.android.app.launcher/.activities.LauncherActivity t8} mRestoreTargetBehindRootTask=Task{b384337 #627 type=standard A=10330:com.UnityTechnologies.com.unity.template.urpblank U=0 visible=true mode=fullscreen translucent=false sz=1}
+02-05 12:32:35.019 V/WindowManager( 1422): Changing focus from Window{6ddfb91 u0 com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity} to Window{efd721c u0 com.sec.android.app.launcher/com.sec.android.app.launcher.activities.LauncherActivity} displayId=0 Callers=com.android.server.wm.RootWindowContainer.updateFocusedWindowLocked:583 com.android.server.wm.WindowManagerService.updateFocusedWindowLocked:6477 com.android.server.wm.DisplayContent.layoutAndAssignWindowLayersIfNeeded:4693 com.android.server.wm.TaskDisplayArea.positionChildTaskAt:560
+02-05 12:32:35.039 D/SGM:GameManager( 1422): sendFocusOutConditionally() - mPrevNotiPkg: com.UnityTechnologies.com.unity.template.urpblank, userId: 0
+02-05 12:32:35.039 D/SGM:GameManager( 1422):   sendFocusOutConditionally(). pause signal is needed for com.UnityTechnologies.com.unity.template.urpblank
+02-05 12:32:35.039 D/SGM:GameManager( 1422): notifyFocusInOut(). of pkg: com.UnityTechnologies.com.unity.template.urpblank, type: 1, isMinimized: false, isTunableApp: false, userId: 0   
+02-05 12:32:35.040 D/SGM:GameManager( 1422):   notifyFocusInOut(). before send intent to GameBooster. type:1, pkgName:com.UnityTechnologies.com.unity.template.urpblank, minimized:false  
+02-05 12:32:35.050 D/SurfaceFlinger(  832):      CLIENT |              | 0002 |  Unknown  |    0.0    0.0    0.0    0.0 |  252  542  900 1860 | Background for SurfaceView - com.Uni[...].UnityPlayerGameActivity@a77d181@0#0
+02-05 12:32:35.050 D/SurfaceFlinger(  832):      CLIENT | 0xb400007ad34c4680 | 0102 | RGBA_8888    |    0.0    0.0  810.0 1647.0 |  252  542  900 1860 | SurfaceView - com.UnityTechnologies.[...]layerGameActivity@a77d181@0(BLAST)#0
+02-05 12:32:35.055 V/WindowManager( 1422): Setting visibility of Window{6ddfb91 u0 com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity}: false, caller=com.android.server.wm.WindowContainer.sendAppVisibilityToClients:1110 com.android.server.wm.WindowToken.setClientVisible:448 com.android.server.wm.ActivityRecord.setClientVisible:7040 com.android.server.wm.ActivityRecord.onAnimationFinished:7927 com.android.server.wm.ActivityRecord.postApplyAnimation:5604
+02-05 12:32:35.081 I/Unity   (11131): Handle cmd APP_CMD_PAUSE(14)
+02-05 12:32:35.082 I/ViewRootImpl@842b20e[UnityPlayerGameActivity](11131): handleAppVisibility mAppVisible=true visible=false
+02-05 12:32:35.088 I/SurfaceView@a77d181(11131): onWindowVisibilityChanged(8) false com.unity3d.player.UnityPlayerGameActivity$GameActivitySurfaceView{a77d181 V.E...... ......I. 0,0-1800,810 #7f080128 app:id/unitySurfaceView} of ViewRootImpl@842b20e[UnityPlayerGameActivity]
+02-05 12:32:35.090 I/SurfaceView@a77d181(11131): surfaceDestroyed callback.size 2 #2 com.unity3d.player.UnityPlayerGameActivity$GameActivitySurfaceView{a77d181 V.E...... ......I. 0,0-1800,810 #7f080128 app:id/unitySurfaceView}
+02-05 12:32:35.101 I/GameTools( 9148): GameBoosterService: TYPE : 1 PKGNAME : com.UnityTechnologies.com.unity.template.urpblank UID : 0 myID : 0
+02-05 12:32:35.102 D/SGM:GameManager( 1422): notePauseComponent(), received pkgName: com.UnityTechnologies.com.unity.template.urpblank, userId: 0
+02-05 12:32:35.124 I/GOS:GameIntentService( 8498): onHandleIntent. GameIntentService. type: 1, pkgName: com.UnityTechnologies.com.unity.template.urpblank
+02-05 12:32:35.129 I/GOS:GameAppReactor( 8498): onFocusOut. : com.UnityTechnologies.com.unity.template.urpblank, userId: 0, myUserId: 0
+02-05 12:32:35.218 I/CameraServiceProxyWrapper( 1003): updateProxyDeviceState: notifyCameraState for Camera ID 0, newState 2, facing 0, clientName com.UnityTechnologies.com.unity.template.urpblank, apiLevel 2
+02-05 12:32:35.219 I/CameraManagerGlobal( 1422): Camera 0 facing CAMERA_FACING_BACK state now CAMERA_STATE_IDLE for client com.UnityTechnologies.com.unity.template.urpblank API Level 2  
+02-05 12:32:35.219 I/CameraManagerGlobal(16663): Camera 0 facing CAMERA_FACING_BACK state now CAMERA_STATE_IDLE for client com.UnityTechnologies.com.unity.template.urpblank API Level 2  
+02-05 12:32:35.219 I/CameraManagerGlobal(29733): Camera 0 facing CAMERA_FACING_BACK state now CAMERA_STATE_IDLE for client com.UnityTechnologies.com.unity.template.urpblank API Level 2  
+02-05 12:32:35.220 I/CameraManagerGlobal( 5313): Camera 0 facing CAMERA_FACING_BACK state now CAMERA_STATE_IDLE for client com.UnityTechnologies.com.unity.template.urpblank API Level 2  
+02-05 12:32:35.220 I/CameraManagerGlobal(11131): Camera 0 facing CAMERA_FACING_BACK state now CAMERA_STATE_IDLE for client com.UnityTechnologies.com.unity.template.urpblank API Level 2  
+02-05 12:32:35.220 I/CameraManagerGlobal(19735): Camera 0 facing CAMERA_FACING_BACK state now CAMERA_STATE_IDLE for client com.UnityTechnologies.com.unity.template.urpblank API Level 2  
+02-05 12:32:35.221 I/CameraManagerGlobal( 3691): Camera 0 facing CAMERA_FACING_BACK state now CAMERA_STATE_IDLE for client com.UnityTechnologies.com.unity.template.urpblank API Level 2  
+02-05 12:32:35.224 I/CameraService_proxy( 1422): updateActivityCount: removeNonHighRefreshRatePackage for client(com.UnityTechnologies.com.unity.template.urpblank)
+02-05 12:32:35.426 I/CameraServiceProxyWrapper( 1003): updateProxyDeviceState: notifyCameraState for Camera ID 0, newState 3, facing 0, clientName com.UnityTechnologies.com.unity.template.urpblank, apiLevel 2
+02-05 12:32:35.428 I/CameraService( 1003): finishCameraOps: Finish camera ops, package name = com.UnityTechnologies.com.unity.template.urpblank, client UID = 10330
+02-05 12:32:35.432 I/CameraManagerGlobal(16663): Camera 0 facing CAMERA_FACING_BACK state now CAMERA_STATE_CLOSED for client com.UnityTechnologies.com.unity.template.urpblank API Level 2
+02-05 12:32:35.432 I/CameraManagerGlobal( 1422): Camera 0 facing CAMERA_FACING_BACK state now CAMERA_STATE_CLOSED for client com.UnityTechnologies.com.unity.template.urpblank API Level 2
+02-05 12:32:35.433 I/CameraManagerGlobal( 3691): Camera 0 facing CAMERA_FACING_BACK state now CAMERA_STATE_CLOSED for client com.UnityTechnologies.com.unity.template.urpblank API Level 2
+02-05 12:32:35.434 I/CameraManagerGlobal(29733): Camera 0 facing CAMERA_FACING_BACK state now CAMERA_STATE_CLOSED for client com.UnityTechnologies.com.unity.template.urpblank API Level 2
+02-05 12:32:35.434 I/CameraManagerGlobal(11131): Camera 0 facing CAMERA_FACING_BACK state now CAMERA_STATE_CLOSED for client com.UnityTechnologies.com.unity.template.urpblank API Level 2
+02-05 12:32:35.436 I/CameraManagerGlobal(19735): Camera 0 facing CAMERA_FACING_BACK state now CAMERA_STATE_CLOSED for client com.UnityTechnologies.com.unity.template.urpblank API Level 2
+02-05 12:32:35.437 I/CameraManagerGlobal( 5313): Camera 0 facing CAMERA_FACING_BACK state now CAMERA_STATE_CLOSED for client com.UnityTechnologies.com.unity.template.urpblank API Level 2
+02-05 12:32:35.541 I/Unity   (11131): Handle cmd APP_CMD_TERM_WINDOW(2)
+02-05 12:32:35.562 I/GOS:TaskSaveSessionData( 8498): run mSessionInfo={"alive":0,"compound_intel_type":"X","data_end":1770274955,"data_end_ms":1770274955475,"data_start":1770274907,"data_start_ms":1770274907092,"decision_ms":50,"deletedTime":0,"end":1770274955,"flags":2097395,"intel_mode":0,"minutesWest":-330,"package_name":"com.UnityTechnologies.com.unity.template.urpblank","profile":2,"start":1770274907,"start_ms":92,"targetLRPST":420,"targetPower":-1,"targetPst":490,"totalTime":48383,"version":"v3.23.1"}, mSessionWrapper=SessionWrapper{id=10, info=package_name = com.UnityTechnologies.com.unity.template.urpblank, start = 1770274907, end = 1770274955, start_ms = 92, data_start = 1770274907, data_end = 1770274955, data_start_ms = 1770274907092, data_end_ms = 1770274955475, deleted_time = 0, total_time = 48383, version = v3.23.1, profile = 2, targetPst = 490, targetLRPST = 420, targetPower = -1, intel_mode = 0, flags = 2097395, minutesWest = -330.}
+02-05 12:32:35.595 I/GOS:EventPublisher( 8498): publishEvent()-(type=GAME_PAUSED, pkgName=com.UnityTechnologies.com.unity.template.urpblank) to (subscriberInfo={com.sec.android.app.samsungapps={GAME_PAUSED,com.sec.android.app.samsungapps}, com.sec.android.app.soundalive={GAME_PAUSED,com.sec.android.app.soundalive}})
+02-05 12:32:35.651 I/BufferQueueProducer(11131): [SurfaceView - com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity@a77d181@0#1(BLAST Consumer)1](id:2b7b00000001,api:1,p:11131,c:11131) disconnect: api -1    
+02-05 12:32:35.651 I/SurfaceView@a77d181(11131): remove() com.unity3d.player.UnityPlayerGameActivity$GameActivitySurfaceView{a77d181 V.E...... ......I. 0,0-1800,810 #7f080128 app:id/unitySurfaceView} Surface(name=SurfaceView - com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity@a77d181@0)/@0x7f4bf79
+02-05 12:32:35.653 I/Unity   (11131): Handle cmd APP_CMD_WINDOW_INSETS_CHANGED(17)
+02-05 12:32:35.654 V/WindowManager( 1422): Relayout Window{6ddfb91 u0 com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity}: viewVisibility=8 req=1800x810 d0
+02-05 12:32:35.656 I/Layer   (  832): id=50241 removedFromDrawingState SurfaceView - com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity@a77d181@0(BLAST)#0 (119)
+02-05 12:32:35.657 I/Layer   (  832): id=50242 removedFromDrawingState Background for SurfaceView - com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity@a77d181@0#0 (119)
+02-05 12:32:35.657 I/Layer   (  832): id=50240 removedFromDrawingState SurfaceView - com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity@a77d181@0#0 (119)
+02-05 12:32:35.657 I/SurfaceFlinger(  832): id=50242 Removed Background for SurfaceView - com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity@a77d181@0#0 (119)
+02-05 12:32:35.657 I/SurfaceFlinger(  832): id=50240 Removed SurfaceView - com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity@a77d181@0#0 (119) 
+02-05 12:32:35.658 I/Layer   (  832): id=50240 Destroyed SurfaceView - com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity@a77d181@0#0
+02-05 12:32:35.658 I/Layer   (  832): id=50242 Destroyed Background for SurfaceView - com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity@a77d181@0#0
+02-05 12:32:35.658 I/BufferQueueProducer(11131): [ViewRootImpl@842b20e[UnityPlayerGameActivity]#0(BLAST Consumer)0](id:2b7b00000000,api:2,p:11131,c:11131) disconnect: api 2
+02-05 12:32:35.658 I/SurfaceFlinger(  832): id=50239 Removed Bounds for - com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity@0#0 (117)
+02-05 12:32:35.659 I/BLASTBufferQueue(11131): [ViewRootImpl@842b20e[UnityPlayerGameActivity]#0] destructor()
+02-05 12:32:35.659 I/BufferQueueConsumer(11131): [ViewRootImpl@842b20e[UnityPlayerGameActivity]#0(BLAST Consumer)0](id:2b7b00000000,api:0,p:-1,c:11131) disconnect
+02-05 12:32:35.664 I/ViewRootImpl@842b20e[UnityPlayerGameActivity](11131): Relayout returned: old=(0,0,1800,810) new=(0,0,1800,810) req=(1800,810)8 dur=5 res=0x5 s={false 0} ch=true fn=11
+02-05 12:32:35.664 I/SurfaceView@a77d181(11131): windowStopped(true) false com.unity3d.player.UnityPlayerGameActivity$GameActivitySurfaceView{a77d181 V.E...... ......I. 0,0-1800,810 #7f080128 app:id/unitySurfaceView} of ViewRootImpl@842b20e[UnityPlayerGameActivity]
+02-05 12:32:35.665 I/Unity   (11131): Handle cmd APP_CMD_WINDOW_INSETS_CHANGED(17)
+02-05 12:32:35.665 I/Unity   (11131): Handle cmd APP_CMD_WINDOW_INSETS_CHANGED(17)
+02-05 12:32:35.666 I/Unity   (11131): Handle cmd APP_CMD_LOW_MEMORY(10)
+02-05 12:32:35.667 I/ViewRootImpl@842b20e[UnityPlayerGameActivity](11131): stopped(true) old=false
+02-05 12:32:35.668 I/Unity   (11131): Handle cmd APP_CMD_STOP(15)
+02-05 12:32:35.669 I/Unity   (11131): Handle cmd APP_CMD_SAVE_STATE(13)
+02-05 12:32:35.678 E/WindowManager( 1422): win=Window{6ddfb91 u0 com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity} destroySurfaces: appStopped=true win.mWindowRemovalAllowed=false win.mRemoveOnExit=false win.mViewVisibility=8 caller=com.android.server.wm.ActivityRecord.destroySurfaces:5873 com.android.server.wm.ActivityRecord.destroySurfaces:5854 com.android.server.wm.ActivityRecord.notifyAppStopped:5918 com.android.server.wm.ActivityRecord.activityStopped:6560 com.android.server.wm.ActivityClientController.activityStopped:254 android.app.IActivityClientController$Stub.onTransact:596 com.android.server.wm.ActivityClientController.onTransact:130
+02-05 12:32:35.678 I/WindowManager( 1422): Destroying surface Surface(name=com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity$_11131)/@0xf75ccfe called by com.android.server.wm.WindowStateAnimator.destroySurface:987 com.android.server.wm.WindowStateAnimator.destroySurfaceLocked:518 com.android.server.wm.WindowState.destroySurfaceUnchecked:4229 com.android.server.wm.WindowState.destroySurface:4203 com.android.server.wm.ActivityRecord.destroySurfaces:5873 com.android.server.wm.ActivityRecord.destroySurfaces:5854 com.android.server.wm.ActivityRecord.notifyAppStopped:5918 com.android.server.wm.ActivityRecord.activityStopped:6560        
+02-05 12:32:35.690 I/Layer   (  832): id=50238 removedFromDrawingState com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity$_11131#0 (116)        
+02-05 12:32:35.690 I/Layer   (  832): id=50239 removedFromDrawingState Bounds for - com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity@0#0 (116)
+02-05 12:32:35.690 I/SurfaceFlinger(  832): id=50238 Removed com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity$_11131#0 (116)
+02-05 12:32:35.691 I/BufferQueueDebug(  832): [com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity$_11131#0](this:0xb400007ad3567948,id:-1,api:0,p:-1,c:832) onDestructor()
+02-05 12:32:35.691 I/Layer   (  832): id=50238 Destroyed com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity$_11131#0
+02-05 12:32:35.691 I/Layer   (  832): id=50239 Destroyed Bounds for - com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity@0#0
+02-05 12:32:36.179 I/Unity   (11131): Handle cmd APP_CMD_DESTROY(16)
+02-05 12:32:36.179 I/Unity   (11131): UnityApplication::DestroyInstance
+02-05 12:32:36.187 I/ActivityManager( 1422): Killing 11131:com.UnityTechnologies.com.unity.template.urpblank/u0a330 (adj 850): remove task:remove-task
+02-05 12:32:36.187 D/ActivityManager( 1422): [SD] user menu kill listen remove action name:com.UnityTechnologies.com.unity.template.urpblank uid:10330
+02-05 12:32:36.557 I/SoundAliveReceiver(10958): handleReceiveGameEvents() : game is paused (com.UnityTechnologies.com.unity.template.urpblank)
+02-05 12:32:36.658 I/SurfaceFlinger(  832): id=50241 Removed SurfaceView - com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity@a77d181@0(BLAST)#0 (114)
+02-05 12:32:36.659 I/Camera2ClientBase( 1003): Closed Camera 0. Client was: com.UnityTechnologies.com.unity.template.urpblank (PID 11131, UID 10330)
+02-05 12:32:36.661 I/BufferQueueDebug(  832): [SurfaceView - com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity@a77d181@0(BLAST)#0](this:0xb400007ad3634948,id:-1,api:0,p:-1,c:832) onDestructor()
+02-05 12:32:36.661 I/Layer   (  832): id=50241 Destroyed SurfaceView - com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity@a77d181@0(BLAST)#0    
+02-05 12:32:36.661 I/WindowManager( 1422): WIN DEATH: Window{6ddfb91 u0 com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity}
+02-05 12:32:36.662 W/InputManager-JNI( 1422): Input channel object '6ddfb91 com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity (client)' was disposed without first being removed with the input manager!     
+02-05 12:32:36.676 I/ActivityTaskManager( 1422): Removing activity ActivityRecord{d3595d1 u0 com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity t627 f}}(appDied)  from stack callers=com.android.server.wm.ActivityRecord.handleAppDied:4292 com.android.server.wm.WindowProcessController.handleAppDied:1297 com.android.server.wm.ActivityTaskManagerService$LocalService.handleAppDied:7072 com.android.server.am.ActivityManagerService.handleAppDiedLocked:3667 com.android.server.am.ActivityManagerService.appDiedLocked:3857
+02-05 12:32:36.677 I/Layer   (  832): id=50237 removedFromDrawingState 6ddfb91 com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity#0 (114)       
+02-05 12:32:36.678 I/SurfaceFlinger(  832): id=50237 Removed 6ddfb91 com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity#0 (114)
+02-05 12:32:36.678 I/Layer   (  832): id=50237 Destroyed 6ddfb91 com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity#0
+02-05 12:32:36.679 W/InputManager-JNI( 1422): Input channel object 'Letterbox_left_ActivityRecord{d3595d1 u0 com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity t627} (client)' was disposed without first being removed with the input manager!
+02-05 12:32:36.679 W/InputManager-JNI( 1422): Input channel object 'Letterbox_top_ActivityRecord{d3595d1 u0 com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity t627} (client)' was disposed without first being removed with the input manager!
+02-05 12:32:36.680 W/InputManager-JNI( 1422): Input channel object 'Letterbox_right_ActivityRecord{d3595d1 u0 com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity t627} (client)' was disposed without first being removed with the input manager!
+02-05 12:32:36.680 W/InputManager-JNI( 1422): Input channel object 'Letterbox_bottom_ActivityRecord{d3595d1 u0 com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity t627} (client)' was disposed without first being removed with the input manager!
+02-05 12:32:36.691 W/UsageStatsService( 1422): Unexpected activity event reported! (com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity event : 23 instanceId : 164458976)
+02-05 12:32:36.694 I/Layer   (  832): id=50227 removedFromDrawingState ActivityRecord{d3595d1 u0 com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity t627}#0 (113)
+02-05 12:32:36.694 I/SurfaceFlinger(  832): id=50227 Removed ActivityRecord{d3595d1 u0 com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity t627}#0 (113)
+02-05 12:32:36.695 I/Layer   (  832): id=50227 Destroyed ActivityRecord{d3595d1 u0 com.UnityTechnologies.com.unity.template.urpblank/com.unity3d.player.UnityPlayerGameActivity t627}#0   
+^C^C
