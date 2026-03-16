@@ -1,35 +1,3 @@
-// =============================================================================
-//  ACID_BASE_REACTION.cs
-//  XR Chemistry Lab — Acid/Base Reaction Script
-//  Fixed & Rewritten — clean, complete, production-ready
-// =============================================================================
-//
-//  GESTURE MAP
-//  ────────────────────────────────────────────────────────────────────────────
-//  OPEN_PINCH  → Refill source beaker with HCl (acid)
-//  OPEN_HAND   → Tilt source beaker; liquid pours when tilted past threshold
-//  CLOSED_HAND → Grab & move target beaker
-//
-//  REACTION LOGIC
-//  ────────────────────────────────────────────────────────────────────────────
-//  Acid (source) + Base (target) → Neutralisation → pH 7, salt water
-//  Source is always acid; target starts empty, can be filled with base via
-//  the "Fill with Base" UI button for a neutralisation demo.
-//
-//  BUGS FIXED vs ORIGINAL
-//  ────────────────────────────────────────────────────────────────────────────
-//  1. MakeTex() now cached — was called every OnGUI frame (major GC leak)
-//  2. ClearRigidbodyVelocities() rewritten without reflection
-//  3. Particle world-position sync fixed (parent check was always false)
-//  4. All [SerializeField] fields moved to top of class — no more fields
-//     scattered between method bodies
-//  5. grabGraceDuration fallback uses real last-known position, not Vector3.zero
-//  6. Source beaker tilt now rotates around its own pivot (not pour point),
-//     then position is restored correctly without fighting the lock
-//  7. CheckBeakerToBeakerPouring() called only once per frame
-//  8. Dead code removed (GetCompactLabelStyle, GetBarBackgroundStyle, etc.)
-//  9. using System.Reflection removed — no longer needed
-// =============================================================================
 
 using UnityEngine;
 using ManoMotion;
