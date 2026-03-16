@@ -212,7 +212,7 @@ public class ACID_BASE_REACTION : MonoBehaviour
     {
         if (sourceBeakerGO != null)
         {
-            _source = BuildBeaker(sourceBeakerGO, fixed: true, sourcePourPoint);
+            _source = BuildBeaker(sourceBeakerGO, isFixed: true, sourcePourPoint);
             _source.chemicalName  = "Hydrochloric Acid (HCl)";
             _source.liquidColor   = new Color(1f, 0.7f, 0.2f, 0.7f);
             _source.volumeML      = maxBeakerVolume;
@@ -223,7 +223,7 @@ public class ACID_BASE_REACTION : MonoBehaviour
 
         if (targetBeakerGO != null)
         {
-            _target = BuildBeaker(targetBeakerGO, fixed: false, targetPourPoint);
+            _target = BuildBeaker(targetBeakerGO, isFixed: false, targetPourPoint);
             _target.chemicalName  = "Empty";
             _target.liquidColor   = new Color(0.7f, 0.85f, 0.92f, 0.7f);
             _target.volumeML      = 0f;
@@ -234,12 +234,12 @@ public class ACID_BASE_REACTION : MonoBehaviour
         }
     }
 
-    BeakerData BuildBeaker(GameObject go, bool @fixed, Transform pourPt)
+    BeakerData BuildBeaker(GameObject go, bool isFixed, Transform pourPt)
     {
         var d = new BeakerData
         {
             go              = go,
-            isFixed         = @fixed,
+            isFixed         = isFixed,
             initialPosition = go.transform.position,
             initialRotation = go.transform.rotation,
             liquidColor     = Color.cyan,
@@ -1012,7 +1012,7 @@ public class ACID_BASE_REACTION : MonoBehaviour
     {
         int pw = 520, ph = 190, px = (sw - pw) / 2, py = sh / 2 - 160;
 
-        BoxTex(px-3, py-3, pw+6, ph+6, _feedback.colour);
+        BoxTex(px-3, py-3, pw+6, ph+6, DynTex(_feedback.colour));
         BoxTex(px,   py,   pw,   ph,   _texFeedbackBg);
 
         Label(px, py+8, pw, 28, "📚  EDUCATIONAL FEEDBACK", 18, _feedback.colour, true, TextAnchor.MiddleCenter);

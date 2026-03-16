@@ -1472,11 +1472,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 420349968}
   m_CullTransparentMesh: 1
---- !u!1 &434470649 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 9028627854349766800, guid: 6d0536f38501def41a310e2063a2f6d2, type: 3}
-  m_PrefabInstance: {fileID: 1493185051}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &447306447
 GameObject:
   m_ObjectHideFlags: 0
@@ -1677,40 +1672,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90a782bccae6f084785744ed72b0d4a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sourceBeaker: {fileID: 0}
-  targetBeaker: {fileID: 0}
+  sourceBeakerGO: {fileID: 0}
+  targetBeakerGO: {fileID: 0}
   waterParticlesPrefab: {fileID: 1476004466}
-  grabDetectionRadius: 3
   sourcePourPoint: {fileID: 0}
   targetPourPoint: {fileID: 0}
   maxBeakerVolume: 500
   pourRate: 250
   pouringDistance: 2
-  pouringThresholdAngle: 20
-  maxPourRate: 1
-  waterColor: {r: 0.7, g: 0.85, b: 0.92, a: 0.7}
+  pouringThreshold: 25
   moveSpeed: 5
   tiltSmoothSpeed: 5
   maxTiltAngle: 60
-  handPositionOffset: {x: 0, y: 0, z: 0}
   coordinateScale: 10
+  handPositionOffset: {x: 0, y: 0, z: 0}
   isLandscapeMode: 1
+  grabAnywhere: 1
+  grabDetectionRadius: 3
+  grabGraceDuration: 0.25
   followHandDepth: 1
   depthSmoothSpeed: 8
-  maxInitialSnapDistance: 0.7
+  maxInitialSnapDist: 0.7
   initialSnapSpeed: 30
-  useGestureControls: 1
+  enableSafetyBounds: 1
+  minBounds: {x: -5, y: -3, z: 5}
+  maxBounds: {x: 5, y: 5, z: 15}
   autoReturnWhenNoGesture: 1
-  grabAnywhere: 1
   audioSource: {fileID: 0}
   pourSound: {fileID: 0}
   refillSound: {fileID: 0}
   reactionSound: {fileID: 0}
-  grabGraceDuration: 0.25
   showDebugVisuals: 1
-  enableSafetyBounds: 1
-  minBounds: {x: -5, y: -3, z: 5}
-  maxBounds: {x: 5, y: 5, z: 15}
+  useGestureControls: 1
 --- !u!4 &620645010 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3014153346147651915, guid: 5347b5590c70b23479250ec315066f81, type: 3}
@@ -2333,40 +2326,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90a782bccae6f084785744ed72b0d4a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sourceBeaker: {fileID: 1944599700}
-  targetBeaker: {fileID: 434470649}
+  sourceBeakerGO: {fileID: 0}
+  targetBeakerGO: {fileID: 0}
   waterParticlesPrefab: {fileID: 1476004466}
-  grabDetectionRadius: 10
   sourcePourPoint: {fileID: 620645010}
   targetPourPoint: {fileID: 0}
   maxBeakerVolume: 250
   pourRate: 250
   pouringDistance: 2
-  pouringThresholdAngle: 25
-  maxPourRate: 100
-  waterColor: {r: 0.119551405, g: 0.7283019, b: 0.18363045, a: 0.7}
+  pouringThreshold: 25
   moveSpeed: 8
   tiltSmoothSpeed: 15
   maxTiltAngle: 60
-  handPositionOffset: {x: 0, y: 0, z: 10}
   coordinateScale: 3
+  handPositionOffset: {x: 0, y: 0, z: 10}
   isLandscapeMode: 1
+  grabAnywhere: 1
+  grabDetectionRadius: 10
+  grabGraceDuration: 0.25
   followHandDepth: 1
   depthSmoothSpeed: 8
-  maxInitialSnapDistance: 0.7
+  maxInitialSnapDist: 0.7
   initialSnapSpeed: 30
-  useGestureControls: 1
+  enableSafetyBounds: 1
+  minBounds: {x: -5, y: -3, z: 5}
+  maxBounds: {x: 5, y: 5, z: 15}
   autoReturnWhenNoGesture: 1
-  grabAnywhere: 1
   audioSource: {fileID: 183069265}
   pourSound: {fileID: 8300000, guid: 5b65ef45b5e0d7c4aa694be881009bbc, type: 3}
   refillSound: {fileID: 8300000, guid: 51846f4834bf34441b0e08458e6e733d, type: 3}
   reactionSound: {fileID: 8300000, guid: 51846f4834bf34441b0e08458e6e733d, type: 3}
-  grabGraceDuration: 0.25
   showDebugVisuals: 1
-  enableSafetyBounds: 1
-  minBounds: {x: -5, y: -3, z: 5}
-  maxBounds: {x: 5, y: 5, z: 15}
+  useGestureControls: 1
 --- !u!4 &894276692
 Transform:
   m_ObjectHideFlags: 0
@@ -6824,11 +6815,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1931047586}
   m_CullTransparentMesh: 1
---- !u!1 &1944599700 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1660128237628049131, guid: 5347b5590c70b23479250ec315066f81, type: 3}
-  m_PrefabInstance: {fileID: 9007995226236008579}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1952647873
 GameObject:
   m_ObjectHideFlags: 0
