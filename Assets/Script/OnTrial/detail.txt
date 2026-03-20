@@ -1,14 +1,4 @@
-Here’s a **clean, precise, AI-tool–friendly prompt** rewritten from your text. It’s structured, unambiguous, and suitable for code-generation or XR design tools.
 
----
-
-### **Prompt: XR Chemistry Lab – Acid Base Reaction Script**
-
-You are working inside a Unity XR project.
-Create code inside the empty file:
-
-```
-@Assets/Scripts/OnTrial/ACID_BASE_REACTION.cs
 ```
 
 ### **Goal**
