@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1089798324530",
+    "project_id": "archemapp",
+    "storage_bucket": "archemapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1089798324530:android:5351cd8e9852b515c5572b",
+        "android_client_info": {
+          "package_name": "com.Shailesh101.ARCHEM"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmWUIarSR170fvCWxxqVW5kTHO94m7l_A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

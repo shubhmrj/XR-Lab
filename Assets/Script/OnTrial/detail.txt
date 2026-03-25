@@ -1,0 +1,61 @@
+
+```
+
+### **Goal**
+
+Implement an XR Chemistry Lab experiment where a user performs an **acid–base reaction** using **hand gestures**. The interaction is fully gesture-driven and uses two beakers: **Source Beaker** and **Target Beaker**.
+
+---
+
+### **System Overview**
+
+#### **Beakers**
+
+1. **Source Beaker**
+2. **Target Beaker**
+
+---
+
+### **Source Beaker Requirements**
+
+* The **Source Beaker is fixed** in position (no movement).
+* It contains a liquid that can be **filled and poured**.
+* Gestures:
+
+  * **Pinch Gesture**
+
+    * Fills the source beaker with liquid.
+  * **Open Hand Gesture**
+
+    * Tilts the beaker.
+    * Liquid pours out from a defined **pour point**.
+* Pouring should visually simulate liquid flow toward the target beaker.
+* Provide a **separate UI panel** for the source beaker showing:
+
+  * Current liquid level
+  * Type of solution (acid/base)
+  * Fill status
+  * add sound effect
+
+---
+
+### **Target Beaker Requirements**
+
+* The **Target Beaker is movable**.
+* Gesture:
+
+  * **Closed Hand Gesture**
+
+    * Allows the user to grab and move the target beaker.
+* When liquid from the source beaker reaches the target beaker:
+
+  * Increase liquid volume in the target beaker.
+  * Trigger reaction logic if applicable.
+* Provide a **dedicated UI panel** for the target beaker showing:
+
+  * Amount of liquid received
+  * Reaction status
+  * Resulting solution details
+
+
+
